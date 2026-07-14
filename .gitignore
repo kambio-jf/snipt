@@ -1,6 +1,7 @@
 # --- generated media & the Whisper model (re-fetchable) ---
 clips/
 models/
+_scratch/
 *.mp4
 *.wav
 *.png
