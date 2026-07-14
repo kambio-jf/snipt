@@ -17,6 +17,17 @@
     { "from": "schw ab", "to": "Schwab" },
     { "from": "comb i ote", "to": "Kambio" },
     { "from": "boll iger", "to": "Bollinger" },
-    { "from": "r hea", "to": "RIA" }
+    { "from": "r hea", "to": "RIA" },
+    { "from": "work lists", "to": "worthless" },
+    { "from": "o auth", "to": "OAuth" },
+    { "from": "t os", "to": "ToS" },
+    { "from": "ff mpeg", "to": "ffmpeg" },
+    { "from": "d script", "to": "Descript" },
+    { "from": "op us cl ips", "to": "Opus Clips" },
+    { "from": "can va", "to": "Canva" },
+    { "from": "land o", "to": "Lando" },
+    { "from": "clay come", "to": "Claude" },
+    { "from": "s ass", "to": "SaaS" },
+    { "from": "car up", "to": "CARA" }
   ]
 }
