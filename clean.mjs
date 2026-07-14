@@ -46,7 +46,9 @@ if (args.includes("--transcribe") || !existsSync(scriptPath)) {
 
 // ---------- phase 2: compute cuts ----------
 const words = JSON.parse(readFileSync(wordsPath, "utf8"));
-const editedText = readFileSync(scriptPath, "utf8");
+const editedScript = existsSync(join(dir, `${name}.script-edited.txt`)) ? join(dir, `${name}.script-edited.txt`) : scriptPath;
+console.log(`(using ${basename(editedScript)})`);
+const editedText = readFileSync(editedScript, "utf8");
 const dur = ffprobeDur(video);
 let { keep, matched, keptWords } = computeKeep({ words, editedText, dur, tighten, defiller });
 if (cuts.length) {
