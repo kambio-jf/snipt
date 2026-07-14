@@ -1,0 +1,9 @@
+{
+  "video": "path/to/recording.mp4",
+  "outDir": "clips",
+  "vertical": false,
+  "clips": [
+    { "start": "14:20", "end": "16:38", "name": "example-clip-a" },
+    { "start": "28:55", "end": "30:05", "name": "example-clip-b" }
+  ]
+}

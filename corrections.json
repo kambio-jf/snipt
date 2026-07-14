@@ -1,0 +1,18 @@
+{
+  "_note": "Post-Whisper domain corrections for base.en's CONSISTENT garbles. Each rule matches consecutive words (case/punctuation-insensitive) and replaces them with `to`. Rule of thumb: only add UNAMBIGUOUS fixes — never map a bare real word that Joel also says legitimately (e.g. do NOT map 'data'->'theta', since 'data' is used for real). Add new ones as we spot them; every fix helps all future videos.",
+  "rules": [
+    { "from": "combo for the people", "to": "Kambio for the People" },
+    { "from": "expired word less", "to": "expired worthless" },
+    { "from": "k omb io", "to": "Kambio" },
+    { "from": "del t as", "to": "deltas" },
+    { "from": "boll inger", "to": "Bollinger" },
+    { "from": "remed iated", "to": "remediated" },
+    { "from": "remed iate", "to": "remediate" },
+    { "from": "oscill ation", "to": "oscillation" },
+    { "from": "oscill ating", "to": "oscillating" },
+    { "from": "cover call", "to": "covered call" },
+    { "from": "ballinger", "to": "Bollinger" },
+    { "from": "piano", "to": "P&L" },
+    { "from": "theater", "to": "theta" }
+  ]
+}

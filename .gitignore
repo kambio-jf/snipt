@@ -1,0 +1,26 @@
+# --- generated media & the Whisper model (re-fetchable) ---
+clips/
+models/
+*.mp4
+*.wav
+*.png
+*.log
+
+# --- personal / per-run configs (examples are committed instead) ---
+config.json
+shorts.json
+
+# --- per-video working files (also live under clips/, belt & suspenders) ---
+*.words.json
+*.script.txt
+*.script-edited.txt
+*.transcript.txt
+*.srt
+*.ass
+*.filter.txt
+*.clean.json
+*.concat.txt
+
+# --- misc ---
+node_modules/
+.DS_Store

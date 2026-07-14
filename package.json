@@ -1,0 +1,9 @@
+{
+  "name": "snipt",
+  "version": "0.1.0",
+  "description": "Local, free, transcript-driven video editing + auto-Shorts. Edit your video by deleting words; auto-clean dead air; generate captioned vertical clips. Runs on ffmpeg + Whisper — no subscription.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": { "node": ">=22" }
+}
