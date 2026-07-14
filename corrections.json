@@ -13,6 +13,10 @@
     { "from": "cover call", "to": "covered call" },
     { "from": "ballinger", "to": "Bollinger" },
     { "from": "piano", "to": "P&L" },
-    { "from": "theater", "to": "theta" }
+    { "from": "theater", "to": "theta" },
+    { "from": "schw ab", "to": "Schwab" },
+    { "from": "comb i ote", "to": "Kambio" },
+    { "from": "boll iger", "to": "Bollinger" },
+    { "from": "r hea", "to": "RIA" }
   ]
 }
