@@ -2,16 +2,16 @@
 // Diffs <name>.script.txt (edited by DELETING words) against <name>.words.json,
 // writes a `keep` array onto the matching short in shorts.json. build.mjs renders it.
 //
-// usage: node cut.mjs clips/2026-07-09/shorts.json flat-exit [--tighten 350] [--defiller]
+// usage: node cli/cut.mjs clips/2026-07-09/shorts.json flat-exit [--tighten 350] [--defiller]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, resolve, join } from "node:path";
-import { computeKeep, ffprobeDur } from "./cutlib.mjs";
+import { computeKeep, ffprobeDur } from "../lib/cutlib.mjs";
 
 const args = process.argv.slice(2);
 const jsonPath = args[0], shortName = args[1];
 const tighten = args.includes("--tighten") ? +args[args.indexOf("--tighten") + 1] : 0;
 const defiller = args.includes("--defiller");
-if (!jsonPath || !shortName) { console.error("usage: node cut.mjs <shorts.json> <name> [--tighten ms] [--defiller]"); process.exit(1); }
+if (!jsonPath || !shortName) { console.error("usage: node cli/cut.mjs <shorts.json> <name> [--tighten ms] [--defiller]"); process.exit(1); }
 
 const cfg = JSON.parse(readFileSync(jsonPath, "utf8"));
 const short = cfg.shorts.find((s) => s.name === shortName);

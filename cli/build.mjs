@@ -4,13 +4,13 @@
 // timeline, (3) renders the split PiP+screen vertical layout with a keyframed
 // pan and burned-in ASS captions.  Consolidates panshort.mjs + mkass.mjs.
 //
-// usage: node build.mjs clips/2026-07-08/shorts.json [name]     (name = render one short)
+// usage: node cli/build.mjs clips/2026-07-08/shorts.json [name]     (name = render one short)
 import { readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, basename, resolve } from "node:path";
 
 const [, , jsonPath, only] = process.argv;
-if (!jsonPath) { console.error("usage: node build.mjs <shorts.json> [name]"); process.exit(1); }
+if (!jsonPath) { console.error("usage: node cli/build.mjs <shorts.json> [name]"); process.exit(1); }
 const cfg = JSON.parse(readFileSync(jsonPath, "utf8"));
 
 // ---- geometry (fixed OBS layout) ----
@@ -70,7 +70,7 @@ function makeRaw2Final(keep) {
 }
 
 function renderShort(short) {
-  const srcRel = short.source;                        // relative to yt-tools cwd
+  const srcRel = short.source;                        // relative to repo-root cwd
   const src = resolve(srcRel);
   const dir = dirname(src);                           // day folder (ffmpeg cwd for pass 2)
   const name = short.name;

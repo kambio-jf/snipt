@@ -1,6 +1,6 @@
 // clip.mjs — chop / compose vertical Shorts from a source video with ffmpeg.
 //
-// Usage:  node clip.mjs config.json
+// Usage:  node cli/clip.mjs config.json
 //
 // Two modes per clip (see config.json):
 //   simple:  { name, start, end, vertical? }        -> straight cut (optionally center-crop 9:16)

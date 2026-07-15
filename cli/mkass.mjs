@@ -1,5 +1,5 @@
 // mkass.mjs — build an ASS from a Whisper SRT (karaoke word-highlight) + describable cues.
-// usage: node mkass.mjs <srt> <cues.json> <out.ass>
+// usage: node cli/mkass.mjs <srt> <cues.json> <out.ass>
 //   cues.json = { "cues": [ { when, hold, at, hook?, lines:[ {size, parts:[{t,c}]} ] } ] }
 //   "when" = anchor words (Whisper timeline) or "start". "at" = center|upper|lower|<y>.
 import { readFileSync, writeFileSync } from "node:fs";

@@ -4,14 +4,14 @@
 //   from script.txt are cut too; renders a clean landscape master <name>-CLEAN.mp4.
 //
 // usage:
-//   node clean.mjs "path/to/recording.mp4"                                        (phase 1: transcribe)
-//   node clean.mjs "…mp4" --dry-run          (phase 2 preview: cut summary, no render)
-//   node clean.mjs "…mp4" [--tighten 350] [--defiller]   (phase 2: render CLEAN master)
-//   node clean.mjs "…mp4" --transcribe       (force re-transcribe)
+//   node cli/clean.mjs "path/to/recording.mp4"                                        (phase 1: transcribe)
+//   node cli/clean.mjs "…mp4" --dry-run          (phase 2 preview: cut summary, no render)
+//   node cli/clean.mjs "…mp4" [--tighten 350] [--defiller]   (phase 2: render CLEAN master)
+//   node cli/clean.mjs "…mp4" --transcribe       (force re-transcribe)
 import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
 import { dirname, basename, resolve, join } from "node:path";
-import { runWordWhisper, computeKeep, cutFilter, ffprobeDur, raw2final, subtractRanges } from "./cutlib.mjs";
+import { runWordWhisper, computeKeep, cutFilter, ffprobeDur, raw2final, subtractRanges } from "../lib/cutlib.mjs";
 
 // parse repeatable --cut MM:SS-MM:SS (or seconds) redaction ranges (RAW timeline)
 const clk = (s) => s.includes(":") ? s.split(":").reduce((a, x) => a * 60 + +x, 0) : +s;
@@ -19,7 +19,7 @@ const cuts = [];
 
 const args = process.argv.slice(2);
 const videoArg = args[0];
-if (!videoArg) { console.error('usage: node clean.mjs "<full-video>" [--tighten 350] [--defiller] [--cut MM:SS-MM:SS] [--dry-run] [--transcribe]'); process.exit(1); }
+if (!videoArg) { console.error('usage: node cli/clean.mjs "<full-video>" [--tighten 350] [--defiller] [--cut MM:SS-MM:SS] [--dry-run] [--transcribe]'); process.exit(1); }
 const video = resolve(videoArg);
 const dir = dirname(video);
 const name = basename(video).replace(/\.[^.]+$/, "");
@@ -39,8 +39,8 @@ if (args.includes("--transcribe") || !existsSync(scriptPath)) {
   const mins = (ffprobeDur(video) / 60).toFixed(1);
   console.log(`✅ ${words.length} words over ${mins} min -> ${name}.script.txt`);
   console.log(`   Next: delete filler words in ${name}.script.txt, then:`);
-  console.log(`   node clean.mjs "${videoArg}" --dry-run     (preview the cuts)`);
-  console.log(`   node clean.mjs "${videoArg}"               (render ${name}-CLEAN.mp4; dead air auto-removed)`);
+  console.log(`   node cli/clean.mjs "${videoArg}" --dry-run     (preview the cuts)`);
+  console.log(`   node cli/clean.mjs "${videoArg}"               (render ${name}-CLEAN.mp4; dead air auto-removed)`);
   process.exit(0);
 }
 

@@ -2,13 +2,13 @@
 // Emits: <name>.words.json (timing) · <name>.script.txt (edit surface) · <name>.srt (karaoke).
 // (<name> = clip basename minus a trailing "-raw".)
 //
-// usage: node transcribe.mjs clips/2026-07-09/flat-exit-raw.mp4
+// usage: node cli/transcribe.mjs clips/2026-07-09/flat-exit-raw.mp4
 import { writeFileSync } from "node:fs";
 import { dirname, basename, resolve, join } from "node:path";
-import { runWordWhisper } from "./cutlib.mjs";
+import { runWordWhisper } from "../lib/cutlib.mjs";
 
 const clipRel = process.argv[2];
-if (!clipRel) { console.error("usage: node transcribe.mjs <clip>"); process.exit(1); }
+if (!clipRel) { console.error("usage: node cli/transcribe.mjs <clip>"); process.exit(1); }
 const clip = resolve(clipRel);
 const dir = dirname(clip);
 const name = basename(clip).replace(/\.[^.]+$/, "").replace(/-raw$/, "");
