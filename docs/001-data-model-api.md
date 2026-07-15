@@ -25,7 +25,13 @@ The prefix is **the root — not the word "video."**
 
 Long names are a feature. Every entity should be readable with zero surrounding context. Hold future entities to this rule.
 
-## 0.1 Aggregate roots = modules
+## 0.1 Storage principle
+
+> **Blobs on disk/S3. Structured data in the DB.**
+
+A video is opaque — nothing to query — so it lives as a file (`video_asset.uri`). A transcript is *structured data we will query* (searching transcripts is how you find Short moments), so its words are rows. Keeping words and `transcript_edit` in one store also means the edit's word indices can't silently drift out of sync with a file.
+
+## 0.2 Aggregate roots = modules
 
 Five roots, and they *are* the feature-first modules:
 
