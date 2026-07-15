@@ -5,8 +5,14 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "engines": { "node": ">=22" },
-  "workspaces": ["lib", "api", "web"],
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "lib",
+    "api",
+    "web"
+  ],
   "scripts": {
     "dev:api": "npm run dev --workspace=api",
     "dev:web": "npm run dev --workspace=web",
@@ -14,5 +20,10 @@
     "typecheck": "npm run typecheck --workspace=api && npm run typecheck --workspace=web",
     "db:generate": "npm run db:generate --workspace=api",
     "db:migrate": "npm run db:migrate --workspace=api"
+  },
+  "_comment_devDependencies": "drizzle-kit does not depend on drizzle-orm — it resolves it from the consumer's tree. drizzle-orm's 28 optional peers make npm nest it under api/, out of the hoisted drizzle-kit's reach ('Please install latest version of drizzle-orm'). Declaring both here hoists a single shared copy. Keep these ranges in sync with api/package.json.",
+  "devDependencies": {
+    "drizzle-orm": "^0.45.2",
+    "drizzle-kit": "^0.31.10"
   }
 }
