@@ -1,0 +1,111 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --accent-fg: #ffffff;
+  --danger: #dc2626;
+  --ok: #059669;
+  --surface: #f9fafb;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --fg: #e8eaed;
+    --muted: #9aa1ab;
+    --line: #2a2f38;
+    --accent: #3b82f6;
+    --surface: #171a21;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+
+h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.05rem; margin: 2rem 0 .75rem; }
+.sub { color: var(--muted); margin: 0 0 2rem; }
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.row { display: flex; gap: .5rem; align-items: center; }
+
+button {
+  font: inherit;
+  padding: .5rem .9rem;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+
+input[type="text"] {
+  font: inherit;
+  padding: .5rem .6rem;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.list { list-style: none; padding: 0; margin: 0; }
+.list li {
+  padding: .7rem .25rem;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+.list li:last-child { border-bottom: 0; }
+
+.muted { color: var(--muted); font-size: .85rem; }
+.err { color: var(--danger); }
+.ok { color: var(--ok); }
+
+.bar { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+
+.transcript {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+  max-height: 420px;
+  overflow-y: auto;
+  line-height: 2.1;
+}
+
+/* each word carries its timing — the Editor (KMBO-253) makes these clickable */
+.w {
+  padding: 1px 3px;
+  border-radius: 4px;
+  cursor: default;
+}
+.w:hover { background: var(--accent); color: var(--accent-fg); }
+
+.pill {
+  font-size: .75rem;
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}

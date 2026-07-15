@@ -9,5 +9,7 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL ?? resolve(repoRoot, "data", "video-tools.db"),
   /** where rendered/uploaded media lands. Local disk now; s3:// later. */
   mediaRoot: process.env.MEDIA_ROOT ?? resolve(repoRoot, "clips"),
+  /** a 1-hour OBS recording runs ~3-4 GB; 16 GB leaves real headroom */
+  maxUploadBytes: Number(process.env.MAX_UPLOAD_BYTES ?? 16 * 1024 * 1024 * 1024),
   logLevel: process.env.LOG_LEVEL ?? "info",
 } as const;

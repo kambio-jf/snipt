@@ -61,12 +61,35 @@ export function srtSec(s: string): number;
 /** Duration of a media file in seconds, via ffprobe. */
 export function ffprobeDur(file: string): number;
 
+export interface WhisperOptions {
+  /** overrides the corrections.json dictionary; pass [] to skip corrections */
+  rules?: CorrectionRule[];
+}
+
+export interface WhisperAsyncOptions extends WhisperOptions {
+  /** source duration in seconds — required for onProgress to mean anything */
+  durationS?: number;
+  /** 0..99, driven by ffmpeg's `time=` against durationS */
+  onProgress?: (pct: number) => void;
+  /** aborting kills the ffmpeg child (job cancel) */
+  signal?: AbortSignal;
+}
+
+/** Rules from corrections.json, or [] when it's absent. */
+export function loadFileCorrections(): CorrectionRule[];
+
+/** Word-level SRT -> words; standalone punctuation merged into the prior word. */
+export function parseWordSrt(srtPath: string): Word[];
+
 /**
- * Run word-level Whisper (max_len=1) over a clip and return its words, with
- * corrections.json already applied. Synchronous and slow — inference-bound;
- * call it from a job worker, never inline in a request.
+ * Run word-level Whisper (max_len=1) over a clip, corrections applied.
+ * BLOCKS the event loop for the whole inference (minutes) — CLI only.
+ * Servers must use runWordWhisperAsync from a worker process.
  */
-export function runWordWhisper(clip: string): Word[];
+export function runWordWhisper(clip: string, opts?: WhisperOptions): Word[];
+
+/** Async word-level Whisper for the job worker: non-blocking, reports progress, abortable. */
+export function runWordWhisperAsync(clip: string, opts?: WhisperAsyncOptions): Promise<Word[]>;
 
 /** Apply a correction dictionary to a word array. Longest rules win. */
 export function applyCorrections(words: Word[], rules: CorrectionRule[]): Word[];

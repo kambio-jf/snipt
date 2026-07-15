@@ -1,4 +1,5 @@
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify from "fastify";
@@ -12,6 +13,9 @@ import {
 import { config } from "./config.js";
 import { AppError } from "./lib/errors.js";
 import { videoProjectRoutes } from "./modules/project/handler.js";
+import { jobRoutes } from "./modules/processor/handler.js";
+import { transcriptRoutes } from "./modules/transcript/handler.js";
+import { videoAssetRoutes } from "./modules/video/handler.js";
 
 export async function buildApp() {
   const app = Fastify({ logger: { level: config.logLevel } }).withTypeProvider<ZodTypeProvider>();
@@ -21,6 +25,7 @@ export async function buildApp() {
   app.setSerializerCompiler(serializerCompiler);
 
   await app.register(cors, { origin: true });
+  await app.register(multipart, { limits: { files: 1, fileSize: config.maxUploadBytes } });
 
   await app.register(swagger, {
     openapi: {
@@ -55,7 +60,10 @@ export async function buildApp() {
   app.get("/health", { schema: { hide: true } }, async () => ({ ok: true }));
 
   await app.register(videoProjectRoutes);
-  // modules/video, transcript, short, processor register here as they land
+  await app.register(videoAssetRoutes);
+  await app.register(transcriptRoutes);
+  await app.register(jobRoutes);
+  // modules/short registers here as it lands (KMBO-255)
 
   return app;
 }

@@ -23,6 +23,7 @@ lib/    the engine — cutlib.mjs: keep-spans, transcript LCS diff, corrections,
         API imports it rather than reimplementing any of it.
 api/    Fastify + Zod (schemas auto-generate the OpenAPI spec) + Drizzle/SQLite.
         modules/<domain>/{handler,service,dao,model}; shared tools in src/lib.
+        src/worker.ts runs queued jobs in its own process.
 web/    Vite + React SPA; its API client is generated from api/openapi.json.
 docs/   design specs
 models/ Whisper model (downloaded, not committed)
@@ -32,14 +33,22 @@ clips/  per-day working folders (not committed)
 The CLI and the app share one engine: `lib/` is the source of truth for all cut
 math, and `cli/*.mjs` and `api/` are both just callers.
 
-## Web app (in progress — KMBO-251)
+## Web app (in progress)
 
 ```bash
 npm install
 npm run db:migrate      # create/upgrade the local SQLite db
+npm run db:seed         # import corrections.json + the default Short layout
+
 npm run dev:api         # http://127.0.0.1:3000  (Swagger UI at /docs)
+npm run dev:worker      # runs transcribe/render jobs
 npm run dev:web         # http://localhost:5173  (proxies /api to the API)
 ```
+
+**The worker is a separate process on purpose.** Whisper and ffmpeg are CPU-bound and
+would stall the API's event loop, so nothing heavy ever runs inside a request: handlers
+enqueue a job and return `202 {jobId}`, and the SPA polls it. That split is also the seam
+where the queue becomes SQS and the worker becomes a pool — without touching the API.
 
 After changing any handler schema, regenerate the contract and the typed client:
 
