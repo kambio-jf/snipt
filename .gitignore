@@ -22,6 +22,14 @@ shorts.json
 *.clean.json
 *.concat.txt
 
+# --- app build artifacts & local db (drizzle/ migrations ARE committed) ---
+dist/
+data/
+*.tsbuildinfo
+
 # --- misc ---
 node_modules/
 .DS_Store
+
+# --- editor/agent local config ---
+.claude/

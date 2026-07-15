@@ -1,9 +1,18 @@
 {
-  "name": "snipt",
+  "name": "video-tools",
   "version": "0.1.0",
   "description": "Local, free, transcript-driven video editing + auto-Shorts. Edit your video by deleting words; auto-clean dead air; generate captioned vertical clips. Runs on ffmpeg + Whisper — no subscription.",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "engines": { "node": ">=22" }
+  "engines": { "node": ">=22" },
+  "workspaces": ["lib", "api", "web"],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=api",
+    "dev:web": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=api && npm run build --workspace=web",
+    "typecheck": "npm run typecheck --workspace=api && npm run typecheck --workspace=web",
+    "db:generate": "npm run db:generate --workspace=api",
+    "db:migrate": "npm run db:migrate --workspace=api"
+  }
 }

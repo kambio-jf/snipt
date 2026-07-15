@@ -1,0 +1,13 @@
+{
+  "name": "@video-tools/lib",
+  "version": "0.1.0",
+  "description": "The engine: keep-spans, transcript LCS diff, corrections, anchor resolution, SRT timelines.",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "./cutlib.mjs",
+  "types": "./cutlib.d.ts",
+  "exports": {
+    ".": { "types": "./cutlib.d.ts", "default": "./cutlib.mjs" }
+  }
+}

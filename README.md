@@ -14,17 +14,39 @@ Think Descript × OpusClips, running on your own machine.
 
 ## Layout
 
+npm workspaces — `lib`, `api`, `web`.
+
 ```
 cli/    command-line entry points (thin arg-parsing over lib/)
 lib/    the engine — cutlib.mjs: keep-spans, transcript LCS diff, corrections,
-        anchor resolution, SRT timelines. Pure, no I/O beyond ffmpeg calls.
+        anchor resolution, SRT timelines. Published as @video-tools/lib so the
+        API imports it rather than reimplementing any of it.
+api/    Fastify + Zod (schemas auto-generate the OpenAPI spec) + Drizzle/SQLite.
+        modules/<domain>/{handler,service,dao,model}; shared tools in src/lib.
+web/    Vite + React SPA; its API client is generated from api/openapi.json.
 docs/   design specs
 models/ Whisper model (downloaded, not committed)
 clips/  per-day working folders (not committed)
 ```
 
-`lib/` is the reusable core; the web app being built on top of it consumes the same
-module rather than reimplementing any of it.
+The CLI and the app share one engine: `lib/` is the source of truth for all cut
+math, and `cli/*.mjs` and `api/` are both just callers.
+
+## Web app (in progress — KMBO-251)
+
+```bash
+npm install
+npm run db:migrate      # create/upgrade the local SQLite db
+npm run dev:api         # http://127.0.0.1:3000  (Swagger UI at /docs)
+npm run dev:web         # http://localhost:5173  (proxies /api to the API)
+```
+
+After changing any handler schema, regenerate the contract and the typed client:
+
+```bash
+npm run spec --workspace=api      # handlers -> api/openapi.json
+npm run gen:api --workspace=web   # openapi.json -> web/src/api/schema.d.ts
+```
 
 ## Requirements
 
