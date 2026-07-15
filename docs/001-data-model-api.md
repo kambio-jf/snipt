@@ -9,7 +9,7 @@ The spine everything hangs off: the DAO, the OpenAPI schemas (→ validation + t
 | the recording / `-CLEAN.mp4` / `-raw.mp4` | `video_asset` (with lineage) |
 | `words.json` | `transcript` + `transcript_word` |
 | `script.txt` edits, `--tighten`, `--cut` | `transcript_edit` (intent) → `keep_spans` (derived) |
-| `shorts.json` | `video_short` + `video_short_text_cue` + `video_short_viewport_keyframe` + `video_short_layout` |
+| `shorts.json` | `video_short` + `video_short_text_cue` + `video_short_region_keyframe` + `video_short_layout` |
 | `corrections.json` | `transcript_correction_rule` |
 | transcribe / render runs | `video_processing_job` |
 
@@ -44,7 +44,7 @@ modules/transcript/  transcript
                      transcript_correction_rule
 modules/short/       video_short
                      video_short_layout
-                     video_short_viewport_keyframe
+                     video_short_region_keyframe
                      video_short_text_cue
 modules/processor/   video_processing_job
 ```
@@ -119,15 +119,24 @@ updated_at         timestamptz
 > **Decided:** one edit per transcript for MVP. Add a `label` + multiple rows later if drafts matter.
 
 ### `video_short_layout`
-Data-driven so custom layouts are just config (KMBO-257).
+Data-driven so custom layouts are just config (KMBO-257). A layout is **a canvas + apertures**.
 ```
 id          uuid pk
 name        text
 canvas      json    -- {w:1080, h:1920}
-regions     json    -- [{source:'pip'|'screen', crop:{x,y,w,h}, place:{x,y,w,h}}]
+regions     json    -- [{ key, place:{x,y,w,h}, crop_size:{w,h} }]
 is_default  bool
 ```
-Today's PiP-top/screen-bottom is **seeded as one row** — never hardcoded in the renderer.
+- `place` — where the region sits **on the canvas**.
+- `crop_size` — the aperture size **in source pixels**, i.e. the zoom level (smaller crop = more zoomed in). Should match `place`'s aspect; the renderer cover-crops any mismatch.
+- The crop **origin is deliberately not here** — it comes from `video_short_region_keyframe`, per short.
+
+Today's PiP-top/screen-bottom seeds as one row:
+```
+[{ key:'pip',      place:{x:0,y:0,w:1080,h:594},    crop_size:{w:342,h:188} },
+ { key:'viewport', place:{x:0,y:594,w:1080,h:1326}, crop_size:{w:640,h:790} }]
+```
+> This **replaces the hardcoded PiP constant** (`{x:30,y:858,w:342,h:188}` — derived by trial and error). The PiP becomes just a region whose origin you drag once.
 
 ### `video_short`
 ```
@@ -140,12 +149,20 @@ created_at            timestamptz
 ```
 > **Decided:** a short **reuses the same transcript + transcript_edit machinery** as the master — its clip is just another `video_asset` with its own transcript and edit. One editing model everywhere, exactly as the CLI already behaves.
 
-### `video_short_viewport_keyframe` — the pan
+### `video_short_region_keyframe` — where the source sits behind a region
 ```
 id, video_short_id fk, idx int
-anchor   text     -- 'start' or a spoken phrase
-x, y     int      -- top-left of the viewport window
+region_key  text     -- which layout region ('pip' | 'viewport' | custom)
+anchor      text     -- 'start' or a spoken phrase
+x, y        int      -- top-left of the SOURCE behind that region's aperture
 ```
+**Any region can have keyframes** — the layout section is a fixed aperture and you drag the video *behind* it (mask-and-layer, à la Flash/AE). PiP = **one** keyframe (static). Viewport = **many** (slides). Same entity, same interaction, different counts.
+
+> **Interpolation (decided):** hold the previous position → **ease-in-out over 0.6s** → **arrive exactly on the anchor word** (so a reveal completes as the word lands). Fixed 0.6s for now. Per-keyframe duration + bezier curves are a future refinement — only if we need them.
+>
+> ⚠️ Today's CLI slides **linearly**; ease-in-out is a change to implement.
+
+> **This is what kills `pancaps.mjs`.** "Sync the video to the word" *is* the frame-grab step — you position against the exact frame that'll be on screen. The screencap → Photoshop → read-coords → paste-numbers loop collapses into one drag.
 
 ### `video_short_text_cue` — the overlay text
 ```
@@ -194,7 +211,7 @@ video_project
                     ├── transcript → transcript_word[]
                     │     └── transcript_edit
                     └── video_short → video_short_text_cue[]
-                                    → video_short_viewport_keyframe[]
+                                    → video_short_region_keyframe[]
                                     → video_short_layout
                           └── video_asset(rendered_short)   ← render_short
 ```
@@ -248,7 +265,7 @@ POST   /api/video-projects/:videoProjectId/video-shorts
 GET    /api/video-shorts/:videoShortId    -- incl. cues, keyframes, layout, clip, transcript ref
 PATCH  /api/video-shorts/:videoShortId    -- name, layoutId
 PUT    /api/video-shorts/:videoShortId/text-cues
-PUT    /api/video-shorts/:videoShortId/viewport-keyframes
+PUT    /api/video-shorts/:videoShortId/region-keyframes
 POST   /api/video-shorts/:videoShortId/render   -> 202 {jobId}
 DELETE /api/video-shorts/:videoShortId
 
