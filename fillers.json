@@ -1,0 +1,15 @@
+{
+  "_note": "Personal filler dictionary — phrases removed from the script before cutting. Word-aware: each phrase matches whole words regardless of surrounding punctuation or case, so 'you know' catches 'You know,' / 'you know.' / ' you know ' with one entry. Longest phrase wins, so 'you know what i mean' beats 'you know'. GUARDRAIL: only unambiguous fillers — never add a word said legitimately ('like' is 91% legitimate in real data; 'kind of' is 64%). Becomes the per-user filler_rule table in KMBO-264.",
+  "_owner": "joel",
+  "phrases": [
+    "um",
+    "uh",
+    "uhh",
+    "hmm",
+    "mm",
+    "sort of",
+    "you know",
+    "you know what i mean",
+    "kind of like"
+  ]
+}

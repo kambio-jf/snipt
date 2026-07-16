@@ -10,7 +10,10 @@ Think Descript × OpusClips, running on your own machine.
 - **Transcript editor** (`cli/transcribe.mjs` + `cli/cut.mjs`) — Descript-style: delete words in `*.script.txt`, and the matching audio+video is cut. Cuts snap to silence and never clip word onsets.
 - **Shorts** (`cli/build.mjs`) — split PiP + screen vertical layout, keyframed pan across the frame, Whisper-synced karaoke captions + describable JSON overlay cues. Driven by a per-day `shorts.json`.
 - **Pan helper** (`cli/pancaps.mjs`) — outputs a screencap at each pan anchor so you can read viewport coordinates off the exact frame.
+- **Filler dictionary** (`cli/defiller.mjs` + `fillers.json`) — your *personal* filler phrases, removed from the script in one pass. Word-aware, so one `you know` entry catches every punctuation and case variant, and the longest phrase wins (`you know what i mean` beats `you know`). Replaces the hand-run find/replace pass.
 - **Corrections** (`corrections.json`) — a domain dictionary that auto-fixes the small Whisper model's *consistent* garbles at transcribe time (extend it as you spot new ones).
+
+> Both dictionaries share one guardrail: **only unambiguous entries.** Never map or delete a word you say legitimately — measured on real transcripts, `like` is ~91% legitimate and bare `kind of` ~64%, so neither belongs in `fillers.json`.
 
 ## Layout
 
