@@ -96,6 +96,32 @@ function renderShort(short) {
     const l = b.split(/\r?\n/), mm = (l[1] || "").match(/([\d:,.]+)\s*-->\s*([\d:,.]+)/);
     return mm ? { start: srtSec(mm[1]), end: srtSec(mm[2]), text: l.slice(2).join(" ").replace(/\s+/g, " ").trim() } : null;
   }).filter((s) => s && s.text);
+
+  // Attach each row's real per-word timings from words.json.
+  //
+  // transcribe.mjs builds the SRT by grouping words.json IN ORDER, so row k maps to
+  // a contiguous slice — take it by index. Matching on the row's time window instead
+  // does not work: base.en emits overlapping and near-zero-duration spans (a 10ms
+  // "right" followed by a 1.8s "here." that the next word starts inside), so an
+  // 8-token row can match 12 words and silently fall back to even interpolation —
+  // which then misjudges words at a cut boundary by a whole word.
+  // Done before the sort/filter below so dropped rows can't desync the cursor.
+  const normOne = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const wordsFile = short.words ? resolve(short.words) : srt.replace(/\.srt$/, ".words.json");
+  let rawWords = [];
+  try { rawWords = JSON.parse(readFileSync(wordsFile, "utf8")); } catch { /* interpolate instead */ }
+  {
+    let cursor = 0;
+    for (const s of segs) {
+      const toks = s.text.split(" ").filter(Boolean);
+      const slice = rawWords.slice(cursor, cursor + toks.length);
+      // sanity-check the head word so a proofread that changed the word count
+      // degrades to interpolation instead of silently mistiming everything after it
+      s.words = slice.length === toks.length && normOne(slice[0].text) === normOne(toks[0]) ? slice : null;
+      cursor += toks.length;
+    }
+  }
+
   segs.sort((a, b) => a.start - b.start);
   for (let i = 0; i < segs.length - 1; i++) if (segs[i].end > segs[i + 1].start) segs[i].end = segs[i + 1].start;
   segs = segs.filter((s) => s.end - s.start > 0.12);
@@ -111,15 +137,54 @@ function renderShort(short) {
   };
   const when2final = (anchor) => +raw2final(when2raw(anchor)).toFixed(2);
 
-  // karaoke rows, remapped onto the cut timeline (drop rows collapsed into a cut)
+  // Karaoke rows, remapped onto the cut timeline.
+  // The SRT is transcribed from the RAW clip, so a row straddling a cut still
+  // contains words that were cut — drop them, or the karaoke sings words the viewer
+  // cannot hear. Uses the real per-word timings attached above.
   const KY = 1660, KSIZE = 66;
-  const karaoke = segs.map((s) => ({ a: raw2final(s.start), b: raw2final(s.end), text: s.text }))
-    .filter((s) => s.b - s.a > 0.12)
-    .map((s) => {
-      const words = s.text.split(" "), durcs = Math.max(1, Math.round((s.b - s.a) * 100)), per = Math.max(1, Math.floor(durcs / words.length));
-      const kt = words.map((w, i) => `{\\k${i === words.length - 1 ? durcs - per * (words.length - 1) : per}}${w} `).join("").trim();
-      return `Dialogue: 0,${t(s.a)},${t(s.b)},Karaoke,,0,0,0,,{\\an5\\pos(540,${KY})}${kt}`;
-    });
+  const inKeep = (raw) => keep.some(([s, e]) => raw >= s && raw <= e);
+  // A word belongs in the karaoke only if most of it survives the cut. Midpoint
+  // alone leaves slivers: a word clipped to its last 20ms still "contains" its
+  // midpoint on one side of the boundary and gets sung for a frame.
+  // (Zero-duration words — base.en emits them — have no overlap to measure, so
+  // fall back to the midpoint.)
+  const audible = (ws, we) => {
+    const dur = we - ws;
+    if (dur <= 0) return inKeep(ws);
+    let overlap = 0;
+    for (const [s, e] of keep) overlap += Math.max(0, Math.min(we, e) - Math.max(ws, s));
+    return overlap / dur > 0.5;
+  };
+
+  const karaoke = segs.flatMap((s) => {
+    const toks = s.text.split(" ").filter(Boolean);
+    if (!toks.length) return [];
+
+    const timed = s.words
+      ? toks.map((w, i) => ({ w, ws: s.words[i].start, we: s.words[i].end }))
+      : toks.map((w, i) => {                                   // fallback: even split
+          const per = (s.end - s.start) / toks.length;
+          return { w, ws: s.start + i * per, we: s.start + (i + 1) * per };
+        });
+
+    const kept = timed
+      .filter(({ ws, we }) => audible(ws, we))
+      .map(({ w, ws, we }) => ({ w, fa: raw2final(ws), fb: raw2final(we) }));
+    if (!kept.length) return [];                               // row fell inside a cut
+
+    const a = kept[0].fa, b = kept[kept.length - 1].fb;
+    if (b - a <= 0.12) return [];
+
+    // \k is sequential: each word holds until the next one starts, so inter-word
+    // gaps get absorbed by the word before them and the fill tracks real speech.
+    const kt = kept
+      .map(({ w, fa }, i) => {
+        const next = i + 1 < kept.length ? kept[i + 1].fa : b;
+        return `{\\k${Math.max(1, Math.round((next - fa) * 100))}}${w} `;
+      })
+      .join("").trim();
+    return [`Dialogue: 0,${t(a)},${t(b)},Karaoke,,0,0,0,,{\\an5\\pos(540,${KY})}${kt}`];
+  });
 
   // describable cues
   const vAlign = (a) => a === "center" ? 960 : a === "upper" ? 620 : a === "lower" ? 1300 : Number(a);
