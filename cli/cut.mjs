@@ -23,7 +23,7 @@ const editedText = readFileSync(join(dir, editedFile), "utf8");
 console.log(`(using ${editedFile})`);
 const dur = ffprobeDur(resolve(short.source));
 
-const { keep, matched } = computeKeep({ words, editedText, dur, tighten, defiller });
+const { keep, matched, keptWords } = computeKeep({ words, editedText, dur, tighten, defiller });
 if (!keep.length) { console.error("nothing survived the edit — aborting"); process.exit(1); }
 
 const kd = keep.reduce((a, [s, e]) => a + (e - s), 0);
@@ -32,5 +32,11 @@ console.log(`cuts: ${keep.length} keep-span(s) · ${kd.toFixed(1)}s of ${dur.toF
 keep.forEach(([s, e], i) => console.log(`  keep ${String(i + 1).padStart(2)}  ${s.toFixed(2)}–${e.toFixed(2)}  (${(e - s).toFixed(1)}s)`));
 delete short.in; delete short.out; delete short.remove;         // keep supersedes these
 short.keep = keep;
+// Which words.json entries survived — the LCS already decided this exactly, so hand
+// it to build.mjs rather than making it re-derive "is this word audible?" from the
+// keep-spans. It can't: base.en emits spans that are wrong (a 1.8s word spoken in
+// 0.3s, 10ms words, spans that overlap their neighbour), so every timing heuristic
+// misjudges words at a cut boundary. This is the ground truth.
+short.keptIdx = (keptWords ?? []).map((w) => w.i);
 writeFileSync(jsonPath, JSON.stringify(cfg, null, 2) + "\n");
 console.log(`✅ wrote keep[] to ${shortName} in ${jsonPath} — now: node build.mjs ${jsonPath} ${shortName}`);

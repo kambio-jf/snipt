@@ -142,33 +142,27 @@ function renderShort(short) {
   // contains words that were cut — drop them, or the karaoke sings words the viewer
   // cannot hear. Uses the real per-word timings attached above.
   const KY = 1660, KSIZE = 66;
-  const inKeep = (raw) => keep.some(([s, e]) => raw >= s && raw <= e);
-  // A word belongs in the karaoke only if most of it survives the cut. Midpoint
-  // alone leaves slivers: a word clipped to its last 20ms still "contains" its
-  // midpoint on one side of the boundary and gets sung for a frame.
-  // (Zero-duration words — base.en emits them — have no overlap to measure, so
-  // fall back to the midpoint.)
-  const audible = (ws, we) => {
-    const dur = we - ws;
-    if (dur <= 0) return inKeep(ws);
-    let overlap = 0;
-    for (const [s, e] of keep) overlap += Math.max(0, Math.min(we, e) - Math.max(ws, s));
-    return overlap / dur > 0.5;
-  };
+  // Which words survived the cut. cut.mjs writes keptIdx from the LCS that produced
+  // the keep-spans, so this is exact. Falling back to a timing test is a guess:
+  // base.en emits spans that are wrong (a 1.8s "here." actually spoken in 0.3s, 10ms
+  // words, spans overlapping their neighbour), so overlap-ratio and start-in-span
+  // both misjudge words at a cut boundary — in opposite directions.
+  const keptIdx = short.keptIdx ? new Set(short.keptIdx) : null;
+  const audible = (idx, ws) => (keptIdx ? keptIdx.has(idx) : keep.some(([s, e]) => ws >= s && ws < e));
 
   const karaoke = segs.flatMap((s) => {
     const toks = s.text.split(" ").filter(Boolean);
     if (!toks.length) return [];
 
     const timed = s.words
-      ? toks.map((w, i) => ({ w, ws: s.words[i].start, we: s.words[i].end }))
+      ? toks.map((w, i) => ({ w, idx: s.words[i].i, ws: s.words[i].start, we: s.words[i].end }))
       : toks.map((w, i) => {                                   // fallback: even split
           const per = (s.end - s.start) / toks.length;
-          return { w, ws: s.start + i * per, we: s.start + (i + 1) * per };
+          return { w, idx: -1, ws: s.start + i * per, we: s.start + (i + 1) * per };
         });
 
     const kept = timed
-      .filter(({ ws, we }) => audible(ws, we))
+      .filter(({ idx, ws }) => audible(idx, ws))
       .map(({ w, ws, we }) => ({ w, fa: raw2final(ws), fb: raw2final(we) }));
     if (!kept.length) return [];                               // row fell inside a cut
 
