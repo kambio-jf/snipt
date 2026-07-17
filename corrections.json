@@ -132,6 +132,38 @@
     {
       "from": "10 thousand",
       "to": "$10,000"
+    },
+    {
+      "from": "k omb iel",
+      "to": "Kambio"
+    },
+    {
+      "from": "car a",
+      "to": "CARA"
+    },
+    {
+      "from": "the ta",
+      "to": "theta"
+    },
+    {
+      "from": "re eval uation",
+      "to": "reevaluation"
+    },
+    {
+      "from": "diver ting",
+      "to": "diverting"
+    },
+    {
+      "from": "rest ructure",
+      "to": "restructure"
+    },
+    {
+      "from": "re analysis",
+      "to": "reanalysis"
+    },
+    {
+      "from": "cell pressure",
+      "to": "sell pressure"
     }
   ]
 }
