@@ -164,6 +164,22 @@
     {
       "from": "cell pressure",
       "to": "sell pressure"
+    },
+    {
+      "from": "cond or",
+      "to": "condor"
+    },
+    {
+      "from": "cond ors",
+      "to": "condors"
+    },
+    {
+      "from": "com b io",
+      "to": "Kambio"
+    },
+    {
+      "from": "hum bly",
+      "to": "humbly"
     }
   ]
 }
