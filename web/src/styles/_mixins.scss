@@ -1,0 +1,23 @@
+// _mixins.scss — ABSTRACTS layer: mixins + functions. Emits NO CSS on its own.
+@use "sass:map";
+@use "./tokens" as t;
+
+// Mobile-first breakpoint mixin — same ergonomics as include-media in your WP
+// themes, but hand-rolled so there's no dependency. Usage:
+//   .thing { padding: var(--space-1); @include bp(tablet) { padding: var(--space-3); } }
+@mixin bp($name) {
+  $min: map.get(t.$breakpoints, $name);
+  @if $min == null {
+    @error "Unknown breakpoint `#{$name}`. Known: #{map.keys(t.$breakpoints)}";
+  }
+  @media (min-width: $min) {
+    @content;
+  }
+}
+
+// Fluid value capped at both ends — the modern replacement for the pure `vw`
+// grid in your themes. Same fluid feel, but it can't blow out on ultrawide and
+// can't cause scrollbar overflow. Usage: width: fluid(20rem, 60vw, 60rem);
+@function fluid($min, $preferred, $max) {
+  @return clamp(#{$min}, #{$preferred}, #{$max});
+}
