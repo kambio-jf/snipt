@@ -1,0 +1,55 @@
+// global.scss — GLOBAL layer: the site-wide styles, imported ONCE (in main.tsx).
+// This is where the abstract tokens become runtime CSS custom properties, and
+// where base element styling lives. Everything below the site level (section,
+// page, component, element) lives in co-located *.module.scss files.
+@use "sass:map";
+@use "./tokens" as t;
+
+// Runtime token layer. Components read `var(--space-2)`, NEVER `$space` directly
+// — so a theme (or dark mode below) can override any of these live, no rebuild.
+:root {
+  // spacing scale, generated from the SCSS map
+  @each $k, $v in t.$space {
+    --space-#{$k}: #{$v};
+  }
+  --radius: #{t.$radius};
+  --content-max: #{t.$content-max};
+
+  // colour tokens — semantic names layered over the brand palette, the same
+  // approach as your themes ($color_font_content_dark etc.)
+  --brand: #f26651;      // Kambio brand orange
+  --brand-ink: #1b4361;  // Kambio brand blue
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --fg: #16181d;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --accent-fg: #ffffff;
+  --danger: #dc2626;
+  --ok: #059669;
+
+  color-scheme: light dark;
+}
+
+// Dark mode = override the SAME custom properties. Impossible with compile-time
+// SCSS vars; trivial once tokens are runtime.
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --fg: #e8eaed;
+    --muted: #9aa1ab;
+    --line: #2a2f38;
+    --accent: #3b82f6;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
