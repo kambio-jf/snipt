@@ -64,7 +64,10 @@ npm run gen:api --workspace=web   # openapi.json -> web/src/api/schema.d.ts
 
 - **Node.js ≥ 22**
 - **ffmpeg** with the `whisper` filter and (optional) hardware encoders. On Windows: `winget install Gyan.FFmpeg`.
-- The Whisper model: `bash fetch-model.sh` (downloads `ggml-base.en.bin`, ~142 MB, not committed).
+- The Whisper model: `bash fetch-model.sh` (downloads `ggml-small.en.bin`, ~465 MB, not committed).
+  `small.en` is deliberate — `base.en` turns non-speech (a swallow, a lip smack) into
+  plausible words, and those phantoms end up in both the cut list and the karaoke.
+  Set `WHISPER_MODEL=ggml-base.en.bin` to fall back for a faster, less accurate pass.
 
 ## Quick start
 

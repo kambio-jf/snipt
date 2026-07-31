@@ -1,0 +1,82 @@
+@use "../styles/mixins" as m;
+
+.panel {
+  // Declare this element a query container so children can respond to the
+  // PANEL's width, not the viewport's. This is the big upgrade over media
+  // queries for reusable components: drop this panel in a narrow sidebar and it
+  // stacks; give it room and it goes two-column — with no knowledge of the page.
+  container: panel / inline-size;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-2);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.h2 { margin: 0; font-size: 1.25rem; }
+.h3 { margin: 0 0 var(--space-1); }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr; // mobile-first: stacked
+  gap: var(--space-2);
+
+  // Container query: two columns once the PANEL itself is wide enough.
+  @container panel (min-width: 34rem) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  }
+}
+
+.list { list-style: none; margin: 0; padding: 0; }
+
+.item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-1);
+  font: inherit;
+  text-align: left;
+  padding: var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+
+  &:hover { background: var(--surface); }
+
+  // Modifier as its own class (toggled with a template string in the TSX) —
+  // the CSS-Modules equivalent of BEM's `--active`.
+  &.active {
+    background: var(--surface);
+    border-color: var(--accent);
+  }
+}
+
+.name { font-weight: 500; }
+
+.detail {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: var(--space-2);
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-0) var(--space-2);
+  margin: 0;
+
+  dt { color: var(--muted); }
+  dd { margin: 0; }
+}
+
+.muted { color: var(--muted); font-size: 0.9rem; }
+.err { color: var(--danger); }

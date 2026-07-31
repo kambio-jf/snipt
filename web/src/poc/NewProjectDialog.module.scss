@@ -1,0 +1,93 @@
+// Co-located component styles. `.module.scss` = scoped by the bundler: these
+// class names get hashed, so `.title` here can't collide with `.title` anywhere
+// else. That's why the BEM `block__` prefixes become unnecessary — the file IS
+// the block. `@use` pulls in abstracts only (no duplicated CSS output).
+@use "../styles/mixins" as m;
+
+.trigger {
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+  cursor: pointer;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.45);
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: m.fluid(18rem, 90vw, 28rem); // fluid, but capped — see _mixins.scss
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) * 1.5);
+  padding: var(--space-3);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.35);
+}
+
+.title {
+  margin: 0 0 var(--space-1);
+  font-size: 1.15rem;
+}
+
+.desc {
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.input {
+  font: inherit;
+  padding: var(--space-1);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.err {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+.btn {
+  font: inherit;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+
+  &.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-fg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
