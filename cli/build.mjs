@@ -180,18 +180,66 @@ function renderShort(short) {
     return [`Dialogue: 0,${t(a)},${t(b)},Karaoke,,0,0,0,,{\\an5\\pos(540,${KY})}${kt}`];
   });
 
-  // describable cues
+  // ---------- describable cues ----------
+  // The stacking below assumes one `lines[]` entry == one RENDERED line. libass
+  // breaks that assumption: any line too wide for the frame wraps, silently becomes
+  // two rendered lines, and collides with the entry above it. So:
+  //   1. \q2 on every cue row — libass never wraps on its own, which makes the
+  //      layout math structurally correct rather than correct-by-luck.
+  //   2. we do the splitting ourselves, at a word boundary, so a long line still
+  //      reads as two properly-spaced lines instead of overflowing the frame.
+  // Width is estimated (no font metrics available here) with per-character advance
+  // ratios for Arial Bold, calibrated against known-good and known-wrapped cues.
+  const CHAR_EM = (c) => {
+    if (c === " ") return 0.28;
+    if ("iljItf.,;:'!|()[]".includes(c)) return 0.30;
+    if ("mwMW@".includes(c)) return 0.83;
+    if (c >= "A" && c <= "Z") return 0.68;
+    if (c >= "0" && c <= "9") return 0.56;
+    return 0.53;
+  };
+  const textWidth = (s, size) => [...s].reduce((a, c) => a + CHAR_EM(c), 0) * size;
+  const SAFE_W = 1070;   // PlayResX 1080 with a hair of breathing room
+
+  /** Split a too-wide single-part line at the most balanced word boundary. */
+  const splitLine = (line) => {
+    const raw = line.parts.map((p) => p.t).join("");
+    if (textWidth(raw, line.size) <= SAFE_W) return [line];
+    // multi-part lines carry per-segment colours; splitting them would mangle the
+    // colouring, so leave them intact and let the warning below flag it
+    if (line.parts.length !== 1) return [line];
+    const words = raw.split(" ").filter(Boolean);
+    if (words.length < 2) return [line];
+    let best = 1, bestDelta = Infinity;
+    for (let k = 1; k < words.length; k++) {
+      const a = textWidth(words.slice(0, k).join(" "), line.size);
+      const b = textWidth(words.slice(k).join(" "), line.size);
+      const delta = Math.abs(a - b) + Math.max(0, a - SAFE_W) * 4 + Math.max(0, b - SAFE_W) * 4;
+      if (delta < bestDelta) { bestDelta = delta; best = k; }
+    }
+    const mk = (txt) => ({ size: line.size, parts: [{ ...line.parts[0], t: txt }] });
+    // recurse: a very long line can need more than one split
+    return [...splitLine(mk(words.slice(0, best).join(" "))), ...splitLine(mk(words.slice(best).join(" ")))];
+  };
+
   const vAlign = (a) => a === "center" ? 960 : a === "upper" ? 620 : a === "lower" ? 1300 : Number(a);
   const cueRows = [];
-  for (const cue of (short.cues ?? [])) {
+  for (const [ci, cue] of (short.cues ?? []).entries()) {
     const start = when2final(cue.when), end = start + (cue.hold ?? 4);
-    const lh = cue.lines.map((l) => Math.round(l.size * 1.12));
+    const lines = cue.lines.flatMap((l) => {
+      const out = splitLine(l);
+      const raw = l.parts.map((p) => p.t).join("");
+      if (out.length > 1) console.log(`   ↳ cue ${ci + 1}: split "${raw}" across ${out.length} lines (too wide at ${l.size}px)`);
+      else if (textWidth(raw, l.size) > SAFE_W) console.log(`   ⚠ cue ${ci + 1}: "${raw}" is ~${Math.round(textWidth(raw, l.size))}px at ${l.size}px and may overflow — shorten it or drop the size`);
+      return out;
+    });
+    const lh = lines.map((l) => Math.round(l.size * 1.12));
     const total = lh.reduce((a, b) => a + b, 0), top = vAlign(cue.at ?? "center") - total / 2;
     const pop = cue.hook ? "\\fscx78\\fscy78\\t(0,130,\\fscx104\\fscy104)\\t(130,210,\\fscx100\\fscy100)" : "\\fscx30\\fscy30\\t(0,170,\\fscx110\\fscy110)\\t(170,260,\\fscx100\\fscy100)";
-    cue.lines.forEach((l, i) => {
+    lines.forEach((l, i) => {
       const cy = Math.round(top + lh.slice(0, i).reduce((a, b) => a + b, 0) + lh[i] / 2);
       const text = l.parts.map((p) => `{\\c${COLORS[p.c ?? "white"]}}${p.t}`).join("");
-      cueRows.push(`Dialogue: 0,${t(start)},${t(end)},Cue,,0,0,0,,{\\an5\\pos(540,${cy})\\fad(${cue.hook ? 0 : 100},180)${pop}\\fs${l.size}}${text}`);
+      cueRows.push(`Dialogue: 0,${t(start)},${t(end)},Cue,,0,0,0,,{\\an5\\q2\\pos(540,${cy})\\fad(${cue.hook ? 0 : 100},180)${pop}\\fs${l.size}}${text}`);
     });
   }
 

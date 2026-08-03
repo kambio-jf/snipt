@@ -97,8 +97,60 @@ export function applyCorrections(words: Word[], rules: CorrectionRule[]): Word[]
 /**
  * LCS-align an edited script against the original words and build keep-spans.
  * Cuts snap to gap midpoints (±PAD) so they land in silence.
+ *
+ * Uses word timings, which are an ESTIMATE — follow with snapSpansToPauses to put
+ * the boundaries on silence the audio actually has.
  */
 export function computeKeep(opts: ComputeKeepOptions): ComputeKeepResult;
+
+export interface PauseOptions {
+  /** below this dBFS counts as silence (default -42) */
+  noiseDb?: number;
+  /** minimum silence length in seconds to report (default 0.08) */
+  minS?: number;
+}
+
+export interface PauseAsyncOptions extends PauseOptions {
+  /** aborting kills the ffmpeg child (job cancel) */
+  signal?: AbortSignal;
+}
+
+/**
+ * Measured silences in a clip, via ffmpeg silencedetect.
+ * BLOCKS — CLI only. Servers use detectPausesAsync from the worker.
+ */
+export function detectPauses(clip: string, opts?: PauseOptions): Span[];
+
+/** Async detectPauses for the job worker — non-blocking, abortable. */
+export function detectPausesAsync(clip: string, opts?: PauseAsyncOptions): Promise<Span[]>;
+
+/**
+ * Drop words whose whole span sits inside a measured silence — Whisper decoding
+ * non-speech (a swallow became the phrase "350, 450" once). Re-indexes `i`. PURE.
+ */
+export function dropPhantomWords(words: Word[], pauses: Span[]): Word[];
+
+export interface SnapOptions {
+  /** only move a boundary if silence is within this many seconds (default 0.4) */
+  windowS?: number;
+  /** silence kept either side of speech when snapping (default 0.03) */
+  marginS?: number;
+}
+
+export interface SnapResult {
+  keep: Span[];
+  /** how many boundaries actually moved */
+  snapped: number;
+  /** boundaries with no nearby silence — these cut mid-speech */
+  unsnapped: Array<{ span: number; edge: "start" | "end"; t: number }>;
+}
+
+/**
+ * Move keep-span boundaries onto measured silence, so cuts open just before speech
+ * and close just after it. PURE — pass pauses from detectPauses or a cached copy,
+ * which is how the API re-snaps on every edit without shelling out to ffmpeg.
+ */
+export function snapSpansToPauses(keep: Span[], pauses: Span[], opts?: SnapOptions): SnapResult;
 
 /** Build a mapper from a source-timeline time to its time on the cut timeline. */
 export function raw2final(keep: Span[]): (raw: number) => number;
