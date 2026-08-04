@@ -180,6 +180,66 @@
     {
       "from": "hum bly",
       "to": "humbly"
+    },
+    {
+      "from": "comm io",
+      "to": "Kambio"
+    },
+    {
+      "from": "remed iation",
+      "to": "remediation"
+    },
+    {
+      "from": "deb rief",
+      "to": "debrief"
+    },
+    {
+      "from": "hist ogram",
+      "to": "histogram"
+    },
+    {
+      "from": "ve ering",
+      "to": "veering"
+    },
+    {
+      "from": "flatt ening",
+      "to": "flattening"
+    },
+    {
+      "from": "direction ality",
+      "to": "directionality"
+    },
+    {
+      "from": "mit igate",
+      "to": "mitigate"
+    },
+    {
+      "from": "mit igated",
+      "to": "mitigated"
+    },
+    {
+      "from": "un mit igated",
+      "to": "unmitigated"
+    },
+    {
+      "from": "AD X",
+      "to": "ADX"
+    },
+    {
+      "from": "R SI",
+      "to": "RSI"
+    },
+    {
+      "from": "MAC D",
+      "to": "MACD"
+    },
+    {
+      "from": "D TE",
+      "to": "DTE"
+    },
+    {
+      "from": "IT M",
+      "to": "ITM"
     }
   ]
 }
