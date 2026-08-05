@@ -240,6 +240,134 @@
     {
       "from": "IT M",
       "to": "ITM"
+    },
+    {
+      "from": "k omb u",
+      "to": "Kambio"
+    },
+    {
+      "from": "car o",
+      "to": "CARA"
+    },
+    {
+      "from": "two a is",
+      "to": "two AIs"
+    },
+    {
+      "from": "ig v",
+      "to": "IGV"
+    },
+    {
+      "from": "gd x",
+      "to": "GDX"
+    },
+    {
+      "from": "dl r",
+      "to": "DLR"
+    },
+    {
+      "from": "cr m",
+      "to": "CRM"
+    },
+    {
+      "from": "z m",
+      "to": "ZM"
+    },
+    {
+      "from": "co f",
+      "to": "COF"
+    },
+    {
+      "from": "c of",
+      "to": "COF"
+    },
+    {
+      "from": "trad able",
+      "to": "tradable"
+    },
+    {
+      "from": "unt ested",
+      "to": "untested"
+    },
+    {
+      "from": "encro achment",
+      "to": "encroachment"
+    },
+    {
+      "from": "dupl icates",
+      "to": "duplicates"
+    },
+    {
+      "from": "vol atility",
+      "to": "volatility"
+    },
+    {
+      "from": "up ward",
+      "to": "upward"
+    },
+    {
+      "from": "channel ing",
+      "to": "channeling"
+    },
+    {
+      "from": "conversation ally",
+      "to": "conversationally"
+    },
+    {
+      "from": "comprehend ing",
+      "to": "comprehending"
+    },
+    {
+      "from": "under stood",
+      "to": "understood"
+    },
+    {
+      "from": "hist ograms",
+      "to": "histograms"
+    },
+    {
+      "from": "flatt en",
+      "to": "flatten"
+    },
+    {
+      "from": "diver ging",
+      "to": "diverging"
+    },
+    {
+      "from": "ve ga",
+      "to": "vega"
+    },
+    {
+      "from": "y ep",
+      "to": "yep"
+    },
+    {
+      "from": "n ope",
+      "to": "nope"
+    },
+    {
+      "from": "g osh",
+      "to": "gosh"
+    },
+    {
+      "from": "cl ogged back",
+      "to": "clawed back"
+    },
+    {
+      "from": "cell volume",
+      "to": "sell volume"
+    },
+    {
+      "from": "50% data",
+      "to": "50% theta"
+    },
+    {
+      "from": "days to data",
+      "to": "days to theta"
+    },
+    {
+      "from": "klaus",
+      "to": "Claude"
     }
   ]
 }
