@@ -148,7 +148,11 @@ function renderShort(short) {
   // words, spans overlapping their neighbour), so overlap-ratio and start-in-span
   // both misjudge words at a cut boundary — in opposite directions.
   const keptIdx = short.keptIdx ? new Set(short.keptIdx) : null;
-  const audible = (idx, ws) => (keptIdx ? keptIdx.has(idx) : keep.some(([s, e]) => ws >= s && ws < e));
+  // idx is -1 on interpolated rows (a proofread changed the row's word count, so the
+  // words.json slice could not be trusted). keptIdx.has(-1) is always false, which
+  // would drop the whole row instead of degrading to interpolation as intended —
+  // fall back to the timing test for those rows.
+  const audible = (idx, ws) => (keptIdx && idx >= 0 ? keptIdx.has(idx) : keep.some(([s, e]) => ws >= s && ws < e));
 
   const karaoke = segs.flatMap((s) => {
     const toks = s.text.split(" ").filter(Boolean);
