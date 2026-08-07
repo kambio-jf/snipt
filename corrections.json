@@ -368,6 +368,102 @@
     {
       "from": "klaus",
       "to": "Claude"
+    },
+    {
+      "from": "xl k",
+      "to": "XLK"
+    },
+    {
+      "from": "x ok",
+      "to": "XLK"
+    },
+    {
+      "from": "int uit",
+      "to": "Intuit"
+    },
+    {
+      "from": "tick er",
+      "to": "ticker"
+    },
+    {
+      "from": "dev iate",
+      "to": "deviate"
+    },
+    {
+      "from": "der iving",
+      "to": "deriving"
+    },
+    {
+      "from": "restruct ured",
+      "to": "restructured"
+    },
+    {
+      "from": "salv aged",
+      "to": "salvaged"
+    },
+    {
+      "from": "chang er",
+      "to": "changer"
+    },
+    {
+      "from": "hop ium",
+      "to": "hopium"
+    },
+    {
+      "from": "dup es",
+      "to": "dupes"
+    },
+    {
+      "from": "r ia",
+      "to": "RIA"
+    },
+    {
+      "from": "fluct uates",
+      "to": "fluctuates"
+    },
+    {
+      "from": "bu ying",
+      "to": "buying"
+    },
+    {
+      "from": "squ ishing",
+      "to": "squishing"
+    },
+    {
+      "from": "d ang",
+      "to": "dang"
+    },
+    {
+      "from": "h v",
+      "to": "HV"
+    },
+    {
+      "from": "p ino",
+      "to": "P&L"
+    },
+    {
+      "from": "rem edi ations",
+      "to": "remediations"
+    },
+    {
+      "from": "rem edi ation",
+      "to": "remediation"
+    },
+    {
+      "from": "rem ed iation",
+      "to": "remediation"
+    },
+    {
+      "from": "plun ger band",
+      "to": "Bollinger Band"
+    },
+    {
+      "from": "wrap cont our",
+      "to": "wrap condor"
+    },
+    {
+      "from": "wind side",
+      "to": "win side"
     }
   ]
 }
