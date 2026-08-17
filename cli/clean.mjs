@@ -33,7 +33,7 @@ for (let i = 0; i < args.length; i++) if (args[i] === "--cut") { const [a, b] = 
 // ---------- phase 1: transcribe ----------
 if (args.includes("--transcribe") || !existsSync(scriptPath)) {
   console.log(`▶ transcribing full video (word-level) — this is the slow step…`);
-  const words = runWordWhisper(video);
+  const words = await runWordWhisper(video);
   writeFileSync(wordsPath, JSON.stringify(words));
   writeFileSync(scriptPath, words.map((w) => w.text).join(" ") + "\n");
   const mins = (ffprobeDur(video) / 60).toFixed(1);

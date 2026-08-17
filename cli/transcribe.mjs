@@ -14,7 +14,7 @@ const dir = dirname(clip);
 const name = basename(clip).replace(/\.[^.]+$/, "").replace(/-raw$/, "");
 
 console.log(`▶ transcribing ${basename(clip)} (word-level)…`);
-const words = runWordWhisper(clip);
+const words = await runWordWhisper(clip);
 writeFileSync(join(dir, `${name}.words.json`), JSON.stringify(words));
 writeFileSync(join(dir, `${name}.script.txt`), words.map((w) => w.text).join(" ") + "\n");
 

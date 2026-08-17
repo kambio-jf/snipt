@@ -64,6 +64,12 @@ export function ffprobeDur(file: string): number;
 export interface WhisperOptions {
   /** overrides the corrections.json dictionary; pass [] to skip corrections */
   rules?: CorrectionRule[];
+  /**
+   * Run a concurrent phrase-level pass and fold sub-word splits back into whole
+   * words (default true). Costs CPU contention, not a second pass of wall-clock.
+   * Set false to skip it and keep whisper's raw token split.
+   */
+  detokenize?: boolean;
 }
 
 export interface WhisperAsyncOptions extends WhisperOptions {
@@ -86,10 +92,29 @@ export function parseWordSrt(srtPath: string): Word[];
  * BLOCKS the event loop for the whole inference (minutes) — CLI only.
  * Servers must use runWordWhisperAsync from a worker process.
  */
-export function runWordWhisper(clip: string, opts?: WhisperOptions): Word[];
+export function runWordWhisper(clip: string, opts?: WhisperOptions): Promise<Word[]>;
 
 /** Async word-level Whisper for the job worker: non-blocking, reports progress, abortable. */
 export function runWordWhisperAsync(clip: string, opts?: WhisperAsyncOptions): Promise<Word[]>;
+
+/** Whole words from a phrase-level SRT (no max_len) — the ground-truth spelling. */
+export function parsePhraseSrtWords(srtPath: string): string[];
+
+/** Result of reconciling the token pass against the phrase pass. */
+export interface AlignResult {
+  /** De-tokenized words, or the untouched tokens when `aligned` is false. */
+  words: Word[];
+  /** How many tokens were folded away (0 when not aligned). */
+  merged: number;
+  /** False when the two passes disagreed — callers should keep the tokens. */
+  aligned: boolean;
+}
+
+/**
+ * Reconcile the max_len=1 token pass (timings) against the phrase pass (spelling).
+ * Deterministic; returns `aligned: false` rather than guessing if they diverge.
+ */
+export function alignTokensToWords(tokens: Word[], words: string[]): AlignResult;
 
 /** Apply a correction dictionary to a word array. Longest rules win. */
 export function applyCorrections(words: Word[], rules: CorrectionRule[]): Word[];
