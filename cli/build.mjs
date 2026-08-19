@@ -141,10 +141,12 @@ function renderShort(short) {
   // The SRT is transcribed from the RAW clip, so a row straddling a cut still
   // contains words that were cut — drop them, or the karaoke sings words the viewer
   // cannot hear. Uses the real per-word timings attached above.
-  // Karaoke baseline. Raising it frees the band underneath for a quiet cue (the
-  // standing paper-account disclaimer) without pushing that cue into the bottom
-  // strip the YouTube Shorts UI overlays.
-  const KY = cfg.layout?.karaokeY ?? 1660, KSIZE = 66;
+  // Karaoke baseline. 1570 (not the old 1660) so the band underneath is free for the
+  // standing quiet paper-account disclaimer at y1700 — putting that cue ABOVE the
+  // captions made it read as a caption of its own rather than as a footnote, and
+  // there is no room below 1660 that the YouTube Shorts UI does not overlay.
+  // Standard stack: hook 1192-1467 · karaoke 1490-1650 · disclaimer ~1680-1720.
+  const KY = cfg.layout?.karaokeY ?? 1570, KSIZE = 66;
   // Which words survived the cut. cut.mjs writes keptIdx from the LCS that produced
   // the keep-spans, so this is exact. Falling back to a timing test is a guess:
   // base.en emits spans that are wrong (a 1.8s "here." actually spoken in 0.3s, 10ms
