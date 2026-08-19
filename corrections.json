@@ -624,6 +624,46 @@
     {
       "from": "rec ency",
       "to": "recency"
+    },
+    {
+      "from": "close able",
+      "to": "closeable"
+    },
+    {
+      "from": "exp iring",
+      "to": "expiring"
+    },
+    {
+      "from": "br ings",
+      "to": "brings"
+    },
+    {
+      "from": "output ting",
+      "to": "outputting"
+    },
+    {
+      "from": "t ook",
+      "to": "took"
+    },
+    {
+      "from": "two a eyes",
+      "to": "two AIs"
+    },
+    {
+      "from": "ft nt",
+      "to": "FTNT"
+    },
+    {
+      "from": "zero bit",
+      "to": "zero bid"
+    },
+    {
+      "from": "anti cl im actic",
+      "to": "anticlimactic"
+    },
+    {
+      "from": "anti cl im atic",
+      "to": "anticlimactic"
     }
   ]
 }
