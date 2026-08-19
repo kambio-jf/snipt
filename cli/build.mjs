@@ -239,11 +239,17 @@ function renderShort(short) {
     });
     const lh = lines.map((l) => Math.round(l.size * 1.12));
     const total = lh.reduce((a, b) => a + b, 0), top = vAlign(cue.at ?? "center") - total / 2;
-    const pop = cue.hook ? "\\fscx78\\fscy78\\t(0,130,\\fscx104\\fscy104)\\t(130,210,\\fscx100\\fscy100)" : "\\fscx30\\fscy30\\t(0,170,\\fscx110\\fscy110)\\t(170,260,\\fscx100\\fscy100)";
+    const pop = cue.quiet ? "" : cue.hook ? "\\fscx78\\fscy78\\t(0,130,\\fscx104\\fscy104)\\t(130,210,\\fscx100\\fscy100)" : "\\fscx30\\fscy30\\t(0,170,\\fscx110\\fscy110)\\t(170,260,\\fscx100\\fscy100)";
+    // The Cue style's 7px outline + 4px shadow is sized for 100px+ headline text and
+    // does NOT scale with \fs — drop the font to disclaimer size and the border stays
+    // put, so the text reads as a blob rather than as small. `quiet` is for cues that
+    // must be legible but must not compete: thin border, no shadow, no pop-in, and a
+    // fixed 35% transparency.
+    const weight = cue.quiet ? "\\bord2\\shad0\\alpha&H59&" : "";
     lines.forEach((l, i) => {
       const cy = Math.round(top + lh.slice(0, i).reduce((a, b) => a + b, 0) + lh[i] / 2);
       const text = l.parts.map((p) => `{\\c${COLORS[p.c ?? "white"]}}${p.t}`).join("");
-      cueRows.push(`Dialogue: 0,${t(start)},${t(end)},Cue,,0,0,0,,{\\an5\\q2\\pos(540,${cy})\\fad(${cue.hook ? 0 : 100},180)${pop}\\fs${l.size}}${text}`);
+      cueRows.push(`Dialogue: 0,${t(start)},${t(end)},Cue,,0,0,0,,{\\an5\\q2\\pos(540,${cy})\\fad(${cue.hook ? 0 : 100},180)${pop}${weight}\\fs${l.size}}${text}`);
     });
   }
 
