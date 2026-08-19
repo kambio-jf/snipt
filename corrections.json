@@ -18,6 +18,10 @@
       "to": "deltas"
     },
     {
+      "from": "d elt as",
+      "to": "deltas"
+    },
+    {
       "from": "boll inger",
       "to": "Bollinger"
     },
@@ -464,6 +468,206 @@
     {
       "from": "wind side",
       "to": "win side"
+    },
+    {
+      "from": "k amb io",
+      "to": "Kambio"
+    },
+    {
+      "from": "commun e",
+      "to": "Kambio"
+    },
+    {
+      "from": "jay o",
+      "to": "Jayo"
+    },
+    {
+      "from": "j o",
+      "to": "Jayo"
+    },
+    {
+      "from": "agent carl",
+      "to": "agent CARA"
+    },
+    {
+      "from": "claus",
+      "to": "Claude"
+    },
+    {
+      "from": "th icker swim",
+      "to": "thinkorswim"
+    },
+    {
+      "from": "think ors w im",
+      "to": "thinkorswim"
+    },
+    {
+      "from": "safe s ci rel oad",
+      "to": "safe side reload"
+    },
+    {
+      "from": "p no",
+      "to": "P&L"
+    },
+    {
+      "from": "c uz",
+      "to": "cause"
+    },
+    {
+      "from": "mer ida",
+      "to": "Merida"
+    },
+    {
+      "from": "y uc atan",
+      "to": "Yucatan"
+    },
+    {
+      "from": "tick ers",
+      "to": "tickers"
+    },
+    {
+      "from": "approx im ation",
+      "to": "approximation"
+    },
+    {
+      "from": "approx im ations",
+      "to": "approximations"
+    },
+    {
+      "from": "re authent icated",
+      "to": "re-authenticated"
+    },
+    {
+      "from": "re authent icate",
+      "to": "re-authenticate"
+    },
+    {
+      "from": "reject ions",
+      "to": "rejections"
+    },
+    {
+      "from": "n ailing",
+      "to": "nailing"
+    },
+    {
+      "from": "reapp ly",
+      "to": "reapply"
+    },
+    {
+      "from": "real ized",
+      "to": "realized"
+    },
+    {
+      "from": "spot ty",
+      "to": "spotty"
+    },
+    {
+      "from": "black sch oles",
+      "to": "Black-Scholes"
+    },
+    {
+      "from": "game ch anger",
+      "to": "game-changer"
+    },
+    {
+      "from": "mob ily",
+      "to": "mobile"
+    },
+    {
+      "from": "accommod ated",
+      "to": "accommodated"
+    },
+    {
+      "from": "cr anking",
+      "to": "cranking"
+    },
+    {
+      "from": "react iv ate",
+      "to": "reactivate"
+    },
+    {
+      "from": "d ashes",
+      "to": "dashes"
+    },
+    {
+      "from": "min us",
+      "to": "minus"
+    },
+    {
+      "from": "re w iring",
+      "to": "rewiring"
+    },
+    {
+      "from": "com be au",
+      "to": "Kambio"
+    },
+    {
+      "from": "comedy for the people",
+      "to": "Kambio for the People"
+    },
+    {
+      "from": "re actions",
+      "to": "reactions"
+    },
+    {
+      "from": "earn ings",
+      "to": "earnings"
+    },
+    {
+      "from": "r anging",
+      "to": "ranging"
+    },
+    {
+      "from": "qu ir ky",
+      "to": "quirky"
+    },
+    {
+      "from": "trend ing",
+      "to": "trending"
+    },
+    {
+      "from": "rec ency",
+      "to": "recency"
+    },
+    {
+      "from": "close able",
+      "to": "closeable"
+    },
+    {
+      "from": "exp iring",
+      "to": "expiring"
+    },
+    {
+      "from": "br ings",
+      "to": "brings"
+    },
+    {
+      "from": "output ting",
+      "to": "outputting"
+    },
+    {
+      "from": "t ook",
+      "to": "took"
+    },
+    {
+      "from": "two a eyes",
+      "to": "two AIs"
+    },
+    {
+      "from": "ft nt",
+      "to": "FTNT"
+    },
+    {
+      "from": "zero bit",
+      "to": "zero bid"
+    },
+    {
+      "from": "anti cl im actic",
+      "to": "anticlimactic"
+    },
+    {
+      "from": "anti cl im atic",
+      "to": "anticlimactic"
     }
   ]
 }
