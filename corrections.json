@@ -668,6 +668,130 @@
     {
       "from": "anti cl im atic",
       "to": "anticlimactic"
+    },
+    {
+      "from": "reconcil ed",
+      "to": "reconciled"
+    },
+    {
+      "from": "exp iry",
+      "to": "expiry"
+    },
+    {
+      "from": "dec ently",
+      "to": "decently"
+    },
+    {
+      "from": "dec ent",
+      "to": "decent"
+    },
+    {
+      "from": "reload ed",
+      "to": "reloaded"
+    },
+    {
+      "from": "priorit ized",
+      "to": "prioritized"
+    },
+    {
+      "from": "nic ety",
+      "to": "nicety"
+    },
+    {
+      "from": "hind rance",
+      "to": "hindrance"
+    },
+    {
+      "from": "ret ry",
+      "to": "retry"
+    },
+    {
+      "from": "inc orrect",
+      "to": "incorrect"
+    },
+    {
+      "from": "ca pping",
+      "to": "capping"
+    },
+    {
+      "from": "d ivid end",
+      "to": "dividend"
+    },
+    {
+      "from": "comp ounding",
+      "to": "compounding"
+    },
+    {
+      "from": "solid ify",
+      "to": "solidify"
+    },
+    {
+      "from": "chart ing",
+      "to": "charting"
+    },
+    {
+      "from": "plateau ed",
+      "to": "plateaued"
+    },
+    {
+      "from": "diver ges",
+      "to": "diverges"
+    },
+    {
+      "from": "sl own ess",
+      "to": "slowness"
+    },
+    {
+      "from": "ve er",
+      "to": "veer"
+    },
+    {
+      "from": "ha iku",
+      "to": "Haiku"
+    },
+    {
+      "from": "a jo finance",
+      "to": "Yahoo Finance"
+    },
+    {
+      "from": "sw ab",
+      "to": "Schwab"
+    },
+    {
+      "from": "m cp",
+      "to": "MCP"
+    },
+    {
+      "from": "m as",
+      "to": "MAs"
+    },
+    {
+      "from": "am t",
+      "to": "AMT"
+    },
+    {
+      "from": "ar k",
+      "to": "ARK"
+    },
+    {
+      "from": "f t and t",
+      "to": "FTNT"
+    },
+    {
+      "from": "low es",
+      "to": "Lowe's"
+    },
+    {
+      "from": "c eg",
+      "to": "CEG"
+    },
+    {
+      "from": "x state",
+      "to": "ex-date"
+    },
+    {
+      "from": "towards exploration",
+      "to": "towards expiration"
     }
   ]
 }
