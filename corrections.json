@@ -792,6 +792,126 @@
     {
       "from": "towards exploration",
       "to": "towards expiration"
+    },
+    {
+      "from": "j l here",
+      "to": "Jayo here"
+    },
+    {
+      "from": "comm ie for the people",
+      "to": "Kambio for the People"
+    },
+    {
+      "from": "asymm etric",
+      "to": "asymmetric"
+    },
+    {
+      "from": "asymm etrical",
+      "to": "asymmetrical"
+    },
+    {
+      "from": "inc hed",
+      "to": "inched"
+    },
+    {
+      "from": "estim ations",
+      "to": "estimations"
+    },
+    {
+      "from": "ramp ed",
+      "to": "ramped"
+    },
+    {
+      "from": "reload s",
+      "to": "reloads"
+    },
+    {
+      "from": "out wards",
+      "to": "outwards"
+    },
+    {
+      "from": "bi direction al",
+      "to": "bidirectional"
+    },
+    {
+      "from": "direction al",
+      "to": "directional"
+    },
+    {
+      "from": "g onna",
+      "to": "gonna"
+    },
+    {
+      "from": "verb ose",
+      "to": "verbose"
+    },
+    {
+      "from": "o ops",
+      "to": "oops"
+    },
+    {
+      "from": "zero ed",
+      "to": "zeroed"
+    },
+    {
+      "from": "sc ored",
+      "to": "scored"
+    },
+    {
+      "from": "overl aps",
+      "to": "overlaps"
+    },
+    {
+      "from": "v i ables",
+      "to": "viables"
+    },
+    {
+      "from": "o i",
+      "to": "OI"
+    },
+    {
+      "from": "d dte",
+      "to": "DTE"
+    },
+    {
+      "from": "m ays",
+      "to": "MAs"
+    },
+    {
+      "from": "p n ail",
+      "to": "P&L"
+    },
+    {
+      "from": "r ap condor",
+      "to": "wrap condor"
+    },
+    {
+      "from": "city group",
+      "to": "Citigroup"
+    },
+    {
+      "from": "bollinger b ands",
+      "to": "Bollinger Bands"
+    },
+    {
+      "from": "b olog er bands",
+      "to": "Bollinger Bands"
+    },
+    {
+      "from": "valid short bit",
+      "to": "valid short bid"
+    },
+    {
+      "from": "zero long bit",
+      "to": "zero long bid"
+    },
+    {
+      "from": "six v ials",
+      "to": "six viables"
+    },
+    {
+      "from": "rs size",
+      "to": "RSI"
     }
   ]
 }
