@@ -90,9 +90,20 @@ console.log(`▶ extracting ${jobs.length} segments (QSV, parallel)…`);
 
 const CONC = 4;
 let done = 0;
+// Headroom before the AAC encode. Joel's OBS gain now puts the source within a
+// few tenths of full scale, and encoding that hot makes the DECODED signal
+// overshoot: 2026-08-24 rendered at 0.0 dBFS sample / +3.08 dBTP, 2026-08-25 at
+// -0.0 / +1.42, both from sources peaking at -0.3. The bitstream isn't clipped,
+// the reconstruction is — which still distorts on playback and survives
+// YouTube's re-encode. Limiting each segment to -2.2 dBFS before the encoder
+// leaves enough room to absorb it; both days landed near -1.4 dBTP when this
+// was applied by hand afterwards. Costs ~0.3 LU of loudness, which is nothing
+// against shipping a clipped master.
+const AUDIO_CEILING = "alimiter=limit=0.78:attack=5:release=50:level=disabled";
+
 const runJob = (j) => new Promise((res, rej) => {
   const p = spawn("ffmpeg", ["-y", "-ss", String(j.s), "-i", video, "-t", String(j.dur),
-    "-c:v", "h264_qsv", "-global_quality", "23", "-c:a", "aac", "-b:a", "192k",
+    "-c:v", "h264_qsv", "-global_quality", "23", "-af", AUDIO_CEILING, "-c:a", "aac", "-b:a", "192k",
     "-avoid_negative_ts", "make_zero", j.out], { stdio: "ignore" });
   p.on("exit", (c) => { if (c === 0) { if (++done % 50 === 0) console.log(`   ${done}/${jobs.length}`); res(); } else rej(new Error(`segment failed: ${j.out}`)); });
 });
