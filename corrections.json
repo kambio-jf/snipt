@@ -968,6 +968,34 @@
     {
       "from": "rollout in a way",
       "to": "roll out and away"
+    },
+    {
+      "from": "jo here",
+      "to": "Jayo here"
+    },
+    {
+      "from": "i gv",
+      "to": "IGV"
+    },
+    {
+      "from": "ivg",
+      "to": "IGV"
+    },
+    {
+      "from": "conners",
+      "to": "condors"
+    },
+    {
+      "from": "six valuables",
+      "to": "six viables"
+    },
+    {
+      "from": "r stuy",
+      "to": "RSI"
+    },
+    {
+      "from": "daily summer",
+      "to": "daily summary"
     }
   ]
 }
