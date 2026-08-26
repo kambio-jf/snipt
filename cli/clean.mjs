@@ -113,6 +113,21 @@ await Promise.all(Array.from({ length: CONC }, async () => { while (queue.length
 const listFile = join(segDir, "list.txt");
 writeFileSync(listFile, jobs.map((j) => `file '${j.out.replace(/\\/g, "/")}'`).join("\n") + "\n");
 console.log(`▶ joining → ${name}-CLEAN.mp4 …`);
-execFileSync("ffmpeg", ["-y", "-f", "concat", "-safe", "0", "-i", listFile, "-c", "copy", `${name}-CLEAN.mp4`], { stdio: "inherit", cwd: dir });
+// Video is copied; audio is re-encoded through the ceiling ONE MORE TIME here.
+//
+// The per-segment ceiling above is necessary but not sufficient. Measured
+// 2026-08-26: a single segment encodes to -2.0 dBFS exactly as intended, yet the
+// concatenated master still reached 0.0 dBFS / +0.53 dBTP. The overshoot is
+// created AT THE JOINS — concat-copy splices 160 independently-encoded AAC
+// streams, and every boundary is a decoder discontinuity. No amount of
+// per-segment limiting can reach that, because it does not exist until the
+// segments are spliced.
+//
+// So the last word has to be a whole-file pass. This costs one audio generation
+// (video is untouched) and is the same operation that had to be run by hand on
+// 2026-08-24, -25 and -26.
+execFileSync("ffmpeg", ["-y", "-f", "concat", "-safe", "0", "-i", listFile,
+  "-af", AUDIO_CEILING, "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+  "-movflags", "+faststart", `${name}-CLEAN.mp4`], { stdio: "inherit", cwd: dir });
 rmSync(segDir, { recursive: true, force: true });
 console.log(`✅ ${join(dir, `${name}-CLEAN.mp4`)}`);
