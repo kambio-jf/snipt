@@ -1112,6 +1112,130 @@
     {
       "from": "v itals",
       "to": "viables"
+    },
+    {
+      "from": "smoke speed",
+      "to": "smoke suite"
+    },
+    {
+      "from": "smoke sweet",
+      "to": "smoke suite"
+    },
+    {
+      "from": "smokes weet",
+      "to": "smoke suite"
+    },
+    {
+      "from": "smokes we locally",
+      "to": "smoke suite locally"
+    },
+    {
+      "from": "feature brands",
+      "to": "feature branches"
+    },
+    {
+      "from": "n pm",
+      "to": "npm"
+    },
+    {
+      "from": "q a",
+      "to": "QA"
+    },
+    {
+      "from": "ec 2",
+      "to": "EC2"
+    },
+    {
+      "from": "t ink or swim",
+      "to": "thinkorswim"
+    },
+    {
+      "from": "states ide reload",
+      "to": "safe side reload"
+    },
+    {
+      "from": "safe s ight",
+      "to": "safe side"
+    },
+    {
+      "from": "led gers",
+      "to": "ledgers"
+    },
+    {
+      "from": "reconc ili ations",
+      "to": "reconciliations"
+    },
+    {
+      "from": "reconcil ing",
+      "to": "reconciling"
+    },
+    {
+      "from": "h icc ups",
+      "to": "hiccups"
+    },
+    {
+      "from": "overw rit ing",
+      "to": "overwriting"
+    },
+    {
+      "from": "regress ions",
+      "to": "regressions"
+    },
+    {
+      "from": "tw os ies",
+      "to": "twosies"
+    },
+    {
+      "from": "exp ir ations",
+      "to": "expirations"
+    },
+    {
+      "from": "direction als",
+      "to": "directionals"
+    },
+    {
+      "from": "sql ite",
+      "to": "SQLite"
+    },
+    {
+      "from": "will y- n illy",
+      "to": "willy-nilly"
+    },
+    {
+      "from": "bare- call",
+      "to": "bear call"
+    },
+    {
+      "from": "bull p itch",
+      "to": "bull put"
+    },
+    {
+      "from": "jump iness",
+      "to": "jumpiness"
+    },
+    {
+      "from": "bottom ish",
+      "to": "bottomish"
+    },
+    {
+      "from": "disrupt s",
+      "to": "disrupts"
+    },
+    {
+      "from": "rs is",
+      "to": "RSI is"
+    },
+    {
+      "from": "ft n",
+      "to": "FTNT"
+    },
+    {
+      "from": "b kr",
+      "to": "BKR"
+    },
+    {
+      "from": "call ers",
+      "to": "callers"
     }
   ]
 }
