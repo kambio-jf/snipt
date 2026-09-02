@@ -1236,6 +1236,106 @@
     {
       "from": "call ers",
       "to": "callers"
+    },
+    {
+      "from": "conv io for the people",
+      "to": "Kambio for the People"
+    },
+    {
+      "from": "smokes week",
+      "to": "smoke suite"
+    },
+    {
+      "from": "smoke le et",
+      "to": "smoke suite"
+    },
+    {
+      "from": "stat uses",
+      "to": "statuses"
+    },
+    {
+      "from": "backlog s",
+      "to": "backlogs"
+    },
+    {
+      "from": "p n ls",
+      "to": "P&Ls"
+    },
+    {
+      "from": "get ignore",
+      "to": "gitignore"
+    },
+    {
+      "from": "re en acting",
+      "to": "re-enacting"
+    },
+    {
+      "from": "hon ed",
+      "to": "honed"
+    },
+    {
+      "from": "hon ing",
+      "to": "honing"
+    },
+    {
+      "from": "nit p icky",
+      "to": "nitpicky"
+    },
+    {
+      "from": "categor ization",
+      "to": "categorization"
+    },
+    {
+      "from": "babys it",
+      "to": "babysit"
+    },
+    {
+      "from": "o uch",
+      "to": "ouch"
+    },
+    {
+      "from": "red o",
+      "to": "redo"
+    },
+    {
+      "from": "cor ning inc orporated",
+      "to": "Corning Incorporated"
+    },
+    {
+      "from": "inc orporated",
+      "to": "Incorporated"
+    },
+    {
+      "from": "i tm",
+      "to": "ITM"
+    },
+    {
+      "from": "sl v",
+      "to": "SLV"
+    },
+    {
+      "from": "cc i",
+      "to": "CCI"
+    },
+    {
+      "from": "ft and t",
+      "to": "FTNT"
+    },
+    {
+      "from": "bare calls",
+      "to": "bear calls"
+    },
+    {
+      "from": "dt zero",
+      "to": "DTE zero"
+    },
+    {
+      "from": "do zero flag",
+      "to": "DTE zero flag"
+    },
+    {
+      "from": "will expiration",
+      "to": "wheel expiration"
     }
   ]
 }
