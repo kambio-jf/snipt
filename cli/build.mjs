@@ -8,8 +8,15 @@
 import { readFileSync, writeFileSync, renameSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { dirname, basename, resolve } from "node:path";
+import { resolvePanKey, getPanPreset, panPresetNames } from "../lib/panpresets.mjs";
 
 const [, , jsonPath, only] = process.argv;
+if (process.argv.includes("--list-pan-presets")) {
+  for (const n of panPresetNames()) { const p = getPanPreset(n); console.log(`${n.padEnd(14)} x=${String(p.x).padStart(4)} y=${String(p.y).padStart(3)}
+  ${p.note}
+`); }
+  process.exit(0);
+}
 if (!jsonPath) { console.error("usage: node cli/build.mjs <shorts.json> [name]"); process.exit(1); }
 const cfg = JSON.parse(readFileSync(jsonPath, "utf8"));
 
@@ -271,8 +278,12 @@ function renderShort(short) {
   console.log(`   ${karaoke.length} karaoke + ${cueRows.length} cue lines`);
 
   // ---------- pan keyframes -> piecewise crop expr ----------
+  // A keyframe may name a preset instead of coordinates ("preset": "slack").
+  // resolvePanKey fills in only what the keyframe left out, so an explicit x or y
+  // still wins — `{ preset: "slack", x: 810 }` is "the Slack default, nudged".
   const keys = (short.pan ?? [{ when: "start", x: MAXX / 2, y: MAXY / 2 }])
-    .map((k) => ({ t: when2final(k.when), x: clampX(k.x), y: clampY(k.y) }))
+    .map(resolvePanKey)
+    .map((k) => ({ t: when2final(k.when), x: clampX(k.x), y: clampY(k.y), preset: k.preset }))
     .sort((a, b) => a.t - b.t);
   const pw = (dim) => {
     let acc = String(keys[0][dim]);
@@ -284,7 +295,7 @@ function renderShort(short) {
     }
     return acc;
   };
-  console.log(`   pan keys: ${keys.map(k => `${k.t.toFixed(1)}s(${k.x},${k.y})`).join(" -> ")}`);
+  console.log(`   pan keys: ${keys.map(k => `${k.t.toFixed(1)}s(${k.x},${k.y})${k.preset ? `[${k.preset}]` : ""}`).join(" -> ")}`);
 
   // ---------- pass 2: split layout + pan + burn ASS ----------
   const outFile = `${name}-SHORT.mp4`;
