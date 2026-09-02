@@ -39,6 +39,9 @@ across episodes, so the left edge of the content that matters is a constant per
 screen rather than something to re-measure each time. Presets live in
 `lib/panpresets.mjs`; an explicit `x`/`y` still wins, so
 `{ "preset": "slack", "x": 810 }` reads as "the default, nudged right".
+The option chain has two presets rather than one (`tos-chain-calls`, `tos-chain-puts`)
+because it is a single very wide screen whose useful framing depends on which side
+is being discussed — there is no honest single default for it.
 
 `cli/thumb.mjs` is the one CLI that does not render through ffmpeg: the thumbnail
 house style (rounded cards, gradients, letter-spaced kickers, SVG furniture) is
