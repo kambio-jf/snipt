@@ -33,6 +33,16 @@ models/ Whisper model (downloaded, not committed)
 clips/  per-day working folders (not committed)
 ```
 
+A Short's pan keyframes can name a **preset** instead of coordinates —
+`{ "when": "start", "preset": "slack" }` — because the recording setup is stable
+across episodes, so the left edge of the content that matters is a constant per
+screen rather than something to re-measure each time. Presets live in
+`lib/panpresets.mjs`; an explicit `x`/`y` still wins, so
+`{ "preset": "slack", "x": 810 }` reads as "the default, nudged right".
+The option chain has two presets rather than one (`tos-chain-calls`, `tos-chain-puts`)
+because it is a single very wide screen whose useful framing depends on which side
+is being discussed — there is no honest single default for it.
+
 `cli/thumb.mjs` is the one CLI that does not render through ffmpeg: the thumbnail
 house style (rounded cards, gradients, letter-spaced kickers, SVG furniture) is
 native to CSS and effectively unreachable from a filtergraph, so it builds an HTML
@@ -91,6 +101,7 @@ node cli/clean.mjs "path/to/recording.mp4"          # renders <name>-CLEAN.mp4 +
 node cli/transcribe.mjs clips/<date>/<name>-raw.mp4  # word timing + editable script
 node cli/cut.mjs clips/<date>/shorts.json <name>     # apply transcript edits -> keep[]
 node cli/build.mjs clips/<date>/shorts.json <name>   # render the vertical Short
+node cli/build.mjs --list-pan-presets                 # named default pan windows
 
 # 3) render the episode thumbnail (see a clips/<date>/thumb.json for the schema)
 node cli/thumb.mjs clips/<date>/thumb.json           # 1280x720 PNG, theme rotates by date
