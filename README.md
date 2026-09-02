@@ -33,6 +33,13 @@ models/ Whisper model (downloaded, not committed)
 clips/  per-day working folders (not committed)
 ```
 
+`cli/thumb.mjs` is the one CLI that does not render through ffmpeg: the thumbnail
+house style (rounded cards, gradients, letter-spaced kickers, SVG furniture) is
+native to CSS and effectively unreachable from a filtergraph, so it builds an HTML
+page and screenshots it with headless Chrome/Edge at an exact 1280x720. Palettes
+live in `lib/thumbthemes.mjs` and rotate off the episode date, so consecutive
+episodes can't ship the same look.
+
 The CLI and the app share one engine: `lib/` is the source of truth for all cut
 math, and `cli/*.mjs` and `api/` are both just callers.
 
@@ -63,6 +70,7 @@ npm run gen:api --workspace=web   # openapi.json -> web/src/api/schema.d.ts
 ## Requirements
 
 - **Node.js ≥ 22**
+- **Chrome or Edge** — only for `cli/thumb.mjs` (headless screenshot). Override the lookup with `CHROME_PATH`.
 - **ffmpeg** with the `whisper` filter and (optional) hardware encoders. On Windows: `winget install Gyan.FFmpeg`.
 - The Whisper model: `bash fetch-model.sh` (downloads `ggml-small.en.bin`, ~465 MB, not committed).
   `small.en` is deliberate — `base.en` turns non-speech (a swallow, a lip smack) into
@@ -83,6 +91,11 @@ node cli/clean.mjs "path/to/recording.mp4"          # renders <name>-CLEAN.mp4 +
 node cli/transcribe.mjs clips/<date>/<name>-raw.mp4  # word timing + editable script
 node cli/cut.mjs clips/<date>/shorts.json <name>     # apply transcript edits -> keep[]
 node cli/build.mjs clips/<date>/shorts.json <name>   # render the vertical Short
+
+# 3) render the episode thumbnail (see a clips/<date>/thumb.json for the schema)
+node cli/thumb.mjs clips/<date>/thumb.json           # 1280x720 PNG, theme rotates by date
+node cli/thumb.mjs clips/<date>/thumb.json --theme crimson   # pin one instead
+node cli/thumb.mjs --list-themes
 ```
 
 ## Notes
