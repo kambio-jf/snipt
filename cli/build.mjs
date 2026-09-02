@@ -5,10 +5,11 @@
 // pan and burned-in ASS captions.  Consolidates panshort.mjs + mkass.mjs.
 //
 // usage: node cli/build.mjs clips/2026-07-08/shorts.json [name]     (name = render one short)
-import { readFileSync, writeFileSync, renameSync } from "node:fs";
-import { execFileSync, spawnSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { dirname, basename, resolve } from "node:path";
 import { resolvePanKey, getPanPreset, panPresetNames } from "../lib/panpresets.mjs";
+import { levelToTarget } from "../lib/loudness.mjs";
 
 const [, , jsonPath, only] = process.argv;
 if (process.argv.includes("--list-pan-presets")) {
@@ -307,54 +308,11 @@ function renderShort(short) {
   execFileSync("ffmpeg", ["-y", "-i", cutFile, "-filter_complex", filter,
     "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "19",
     "-c:a", "aac", "-b:a", "192k", outFile], { stdio: "inherit", cwd: dir });
-  levelShort(dir, outFile);
+  levelToTarget(dir, outFile);
   console.log(`✅ ${resolve(dir, outFile)}`);
 }
 
-// ---------- loudness ----------
-// A Short does NOT inherit the master's level. It's an excerpt, so it carries
-// whatever that passage happened to be, and this render re-encodes the audio
-// twice more (cut pass, then layout pass), which pushes true peak further.
-// Measured across 2026-08-19..25 the finished Shorts ranged -15.3 to -12.5 LUFS,
-// and 2026-08-24 came out at -12.5 with a true peak of +0.38 — over full scale —
-// from a master that measured -14.2 / -0.92. Every one of those was caught by
-// hand. This does it automatically.
-const TARGET_I = -14.0, TOL_I = 0.5, MAX_TP = -1.0;
-
-const measure = (dir, file) => {
-  // loudnorm prints its JSON to STDERR. execFileSync returns stdout only, so
-  // reading it there yields NaN on every render and the check silently no-ops.
-  const r = spawnSync("ffmpeg", ["-hide_banner", "-nostats", "-i", file,
-    "-af", "loudnorm=I=-14:TP=-1.5:print_format=json", "-f", "null", "-"],
-    { cwd: dir, encoding: "utf8", maxBuffer: 1 << 24 });
-  const out = `${r.stderr ?? ""}${r.stdout ?? ""}`;
-  const grab = (k) => { const m = out.match(new RegExp(`"${k}"\\s*:\\s*"(-?[\\d.]+)"`)); return m ? +m[1] : NaN; };
-  return { i: grab("input_i"), tp: grab("input_tp") };
-};
-
-/** Measure the finished Short and, only if it's out of spec, correct it in place. */
-function levelShort(dir, outFile) {
-  let m;
-  try { m = measure(dir, outFile); } catch { console.log("   ⚠ loudness measure failed — check it by hand"); return; }
-  if (!Number.isFinite(m.i) || !Number.isFinite(m.tp)) { console.log("   ⚠ loudness measure returned nothing — check it by hand"); return; }
-
-  const gain = TARGET_I - m.i;
-  const inSpec = Math.abs(gain) <= TOL_I && m.tp <= MAX_TP;
-  if (inSpec) { console.log(`   loudness ${m.i.toFixed(1)} LUFS · peak ${m.tp.toFixed(2)} dBTP — in spec`); return; }
-
-  // Video is copied, so this costs one audio generation and nothing else. The
-  // limiter is the backstop: gain alone would push an already-hot peak further.
-  const tmp = `${outFile.replace(/\.mp4$/, "")}.lvl.mp4`;
-  execFileSync("ffmpeg", ["-y", "-i", outFile,
-    "-af", `volume=${gain.toFixed(2)}dB,alimiter=limit=0.82:attack=5:release=50:level=disabled`,
-    "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", tmp],
-    { cwd: dir, stdio: ["ignore", "ignore", "pipe"] });
-  renameSync(resolve(dir, tmp), resolve(dir, outFile));
-  const after = measure(dir, outFile);
-  console.log(`   loudness ${m.i.toFixed(1)} LUFS · peak ${m.tp.toFixed(2)} dBTP -> ${after.i.toFixed(1)} / ${after.tp.toFixed(2)} (${gain >= 0 ? "+" : ""}${gain.toFixed(2)} dB)`);
-}
-
-for (const short of cfg.shorts) {
+for (const short of cfg.shorts)for (const short of cfg.shorts) {
   if (only && short.name !== only) continue;
   renderShort(short);
 }
