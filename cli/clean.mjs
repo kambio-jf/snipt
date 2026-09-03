@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from "node
 import { execFileSync, spawn } from "node:child_process";
 import { dirname, basename, resolve, join } from "node:path";
 import { runWordWhisper, computeKeep, cutFilter, ffprobeDur, raw2final, subtractRanges } from "../lib/cutlib.mjs";
+import { levelToTarget } from "../lib/loudness.mjs";
 
 // parse repeatable --cut MM:SS-MM:SS (or seconds) redaction ranges (RAW timeline)
 const clk = (s) => s.includes(":") ? s.split(":").reduce((a, x) => a * 60 + +x, 0) : +s;
@@ -130,4 +131,14 @@ execFileSync("ffmpeg", ["-y", "-f", "concat", "-safe", "0", "-i", listFile,
   "-af", AUDIO_CEILING, "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
   "-movflags", "+faststart", `${name}-CLEAN.mp4`], { stdio: "inherit", cwd: dir });
 rmSync(segDir, { recursive: true, force: true });
+
+// The ceilings above stop the master CLIPPING; they do nothing about its LEVEL.
+// That gap was invisible while Joel's OBS gain stayed put — every master landed
+// near -14 because every source did. On 2026-09-02 the source came in at -16.45
+// LUFS and the master inherited it at -16.55, about 2.5 LU quiet. YouTube only
+// turns loud content DOWN, so that episode would simply have played softer than
+// the one before it, and the inconsistency between consecutive episodes is worse
+// than either number on its own. build.mjs has solved exactly this for Shorts
+// since PR #15; the master path just never got it.
+levelToTarget(dir, `${name}-CLEAN.mp4`, { label: "master loudness" });
 console.log(`✅ ${join(dir, `${name}-CLEAN.mp4`)}`);
