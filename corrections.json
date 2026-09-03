@@ -1336,6 +1336,102 @@
     {
       "from": "will expiration",
       "to": "wheel expiration"
+    },
+    {
+      "from": "simulator paper account",
+      "to": "simulated paper account"
+    },
+    {
+      "from": "entertainment versus purposes",
+      "to": "entertainment purposes"
+    },
+    {
+      "from": "save side reload",
+      "to": "safe side reload"
+    },
+    {
+      "from": "same side reload",
+      "to": "safe side reload"
+    },
+    {
+      "from": "triple which",
+      "to": "triple witching"
+    },
+    {
+      "from": "inter ject",
+      "to": "interject"
+    },
+    {
+      "from": "l ols",
+      "to": "lulls"
+    },
+    {
+      "from": "smoot hing",
+      "to": "smoothing"
+    },
+    {
+      "from": "rs i",
+      "to": "RSI"
+    },
+    {
+      "from": "rect angle",
+      "to": "rectangle"
+    },
+    {
+      "from": "tel k ara",
+      "to": "tell CARA"
+    },
+    {
+      "from": "oops ies",
+      "to": "Oopsies"
+    },
+    {
+      "from": "subt racted",
+      "to": "subtracted"
+    },
+    {
+      "from": "f nt",
+      "to": "FTNT"
+    },
+    {
+      "from": "craz iness",
+      "to": "craziness"
+    },
+    {
+      "from": "v ials",
+      "to": "viables"
+    },
+    {
+      "from": "cal mer",
+      "to": "calmer"
+    },
+    {
+      "from": "fl atter",
+      "to": "flatter"
+    },
+    {
+      "from": "who ops",
+      "to": "Whoops"
+    },
+    {
+      "from": "y up",
+      "to": "yup"
+    },
+    {
+      "from": "bl ocked",
+      "to": "blocked"
+    },
+    {
+      "from": "s gi",
+      "to": "SGI"
+    },
+    {
+      "from": "v ix",
+      "to": "VIX"
+    },
+    {
+      "from": "house keeping",
+      "to": "housekeeping"
     }
   ]
 }
