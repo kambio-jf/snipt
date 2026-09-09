@@ -14,6 +14,7 @@
 //   node cli/thumb.mjs clips/2026-09-01/thumb.json
 //   node cli/thumb.mjs …/thumb.json --theme crimson     (override the rotation)
 //   node cli/thumb.mjs …/thumb.json --keep-html         (write the source next to the PNG)
+//   node cli/thumb.mjs …/thumb.json --frame stack        (text top, box bottom)
 //   node cli/thumb.mjs --list-themes
 import { readFileSync, writeFileSync, existsSync, statSync, unlinkSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -21,6 +22,7 @@ import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { getTheme, themeForDate, themeNames } from "../lib/thumbthemes.mjs";
 import { getLayout, layoutNames } from "../lib/thumblayouts.mjs";
+import { getFrame, frameNames } from "../lib/thumbframes.mjs";
 
 const W = 1280, H = 720;
 const YT_MAX_BYTES = 2 * 1024 * 1024;   // YouTube rejects thumbnails over 2 MB
@@ -31,11 +33,15 @@ if (args.includes("--list-layouts")) {
   for (const n of layoutNames()) console.log(`${n.padEnd(10)} ${getLayout(n).fields}`);
   process.exit(0);
 }
+if (args.includes("--list-frames")) {
+  for (const n of frameNames()) console.log(`${n.padEnd(8)} ${getFrame(n).blurb}`);
+  process.exit(0);
+}
 
 const jsonPath = args.find((a) => !a.startsWith("--"));
 if (!jsonPath) {
-  console.error("usage: node cli/thumb.mjs <thumb.json> [--theme name] [--out file.png] [--keep-html]");
-  console.error("       node cli/thumb.mjs --list-themes");
+  console.error("usage: node cli/thumb.mjs <thumb.json> [--theme name] [--layout name] [--frame name] [--out file.png] [--keep-html]");
+  console.error("       node cli/thumb.mjs --list-themes | --list-layouts | --list-frames");
   process.exit(1);
 }
 const flag = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
@@ -55,6 +61,16 @@ const T = getTheme(themeName);
 // colour; a viewer scanning a feed reads SHAPE first, so three layouts multiply
 // the apparent variety far more than three more colours would.
 const L = getLayout(flag("--layout") ?? spec.layout ?? "cards");
+
+// Frame is the THIRD axis: which block sits where. Theme changes the colour,
+// layout the shape of the content block, frame the skeleton both sit in — and
+// the skeleton is what a viewer reads first. Defaults to the original split, so
+// every thumb.json written before frames existed renders byte-for-byte the same.
+const F = getFrame(flag("--frame") ?? spec.frame ?? "split");
+
+// A full-width headline needs a smaller size than a 446px-column one, so the
+// frame carries a default. An explicit headlineSize in the spec still wins.
+const headlineSize = spec.headlineSize ?? F.headlineSize ?? 93;
 
 const outPath = resolve(flag("--out") ?? spec.out ?? join(dir, `thumb-${spec.date ?? "kftp"}.png`));
 
@@ -113,7 +129,7 @@ const html = `<meta charset="utf-8">
   .left{width:446px;display:flex;flex-direction:column}
   .tick{width:66px;height:7px;background:${T.accent};border-radius:3px;margin-bottom:22px}
   h1{font-family:'Sequel100Black-65','Sequel100Black-55',Impact,'Arial Black',sans-serif;
-     font-size:${spec.headlineSize ?? 93}px;line-height:.88;letter-spacing:.005em;
+     font-size:${headlineSize}px;line-height:.88;letter-spacing:.005em;
      color:${T.ink};text-transform:uppercase}
   h1 .accent{color:${T.accent}}
   .rule{display:flex;align-items:center;margin:26px 0 16px}
@@ -131,6 +147,7 @@ const html = `<meta charset="utf-8">
   .pill .l{font-size:12px;font-weight:800;letter-spacing:.13em;color:${T.muted};text-transform:uppercase;margin-top:6px}
   .tag{position:absolute;right:54px;bottom:20px;font-size:13px;font-weight:800;
        letter-spacing:.17em;color:${T.faint};text-transform:uppercase}
+  ${F.css(T)}
 </style>
 <div class="bg"></div><div class="grid"></div>
 ${sticks}
@@ -172,7 +189,7 @@ if (!existsSync(outPath)) {
 
 const bytes = statSync(outPath).size;
 console.log(`✅ ${outPath}`);
-console.log(`   ${W}x${H} · theme "${T.name}"${flag("--theme") || spec.theme ? "" : " (rotated from date)"} · ${(bytes / 1024).toFixed(0)} KB`);
+console.log(`   ${W}x${H} · theme "${T.name}"${flag("--theme") || spec.theme ? "" : " (rotated from date)"} · layout "${L.name}" · frame "${F.name}" · ${(bytes / 1024).toFixed(0)} KB`);
 if (bytes > YT_MAX_BYTES) console.log(`   ⚠ over YouTube's 2 MB limit — trim the artwork or re-encode`);
 
 // ---- helpers ----
