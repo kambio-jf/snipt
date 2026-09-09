@@ -20,12 +20,17 @@ import { spawnSync } from "node:child_process";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { getTheme, themeForDate, themeNames } from "../lib/thumbthemes.mjs";
+import { getLayout, layoutNames } from "../lib/thumblayouts.mjs";
 
 const W = 1280, H = 720;
 const YT_MAX_BYTES = 2 * 1024 * 1024;   // YouTube rejects thumbnails over 2 MB
 
 const args = process.argv.slice(2);
 if (args.includes("--list-themes")) { console.log(themeNames().join("\n")); process.exit(0); }
+if (args.includes("--list-layouts")) {
+  for (const n of layoutNames()) console.log(`${n.padEnd(10)} ${getLayout(n).fields}`);
+  process.exit(0);
+}
 
 const jsonPath = args.find((a) => !a.startsWith("--"));
 if (!jsonPath) {
@@ -45,6 +50,11 @@ const dir = dirname(specPath);
 // looking like the same video in a subscriptions feed.
 const themeName = flag("--theme") ?? spec.theme ?? themeForDate(spec.date ?? isoToday());
 const T = getTheme(themeName);
+
+// Layout is the OTHER axis of variation. Sixteen palettes made episodes differ in
+// colour; a viewer scanning a feed reads SHAPE first, so three layouts multiply
+// the apparent variety far more than three more colours would.
+const L = getLayout(flag("--layout") ?? spec.layout ?? "cards");
 
 const outPath = resolve(flag("--out") ?? spec.out ?? join(dir, `thumb-${spec.date ?? "kftp"}.png`));
 
@@ -84,20 +94,6 @@ const kickerHtml = kicker
   .map((line, i) => (i === kicker.length - 1 && kicker.length > 1 ? `<b>${esc(line)}</b>` : esc(line)))
   .join("<br>");
 
-const cardsHtml = (spec.cards ?? [])
-  .map((c) => {
-    const tone = c.tone === "good" ? "yes" : "no";
-    const rows = (c.rows ?? [])
-      .map((r) => `<div class="row"><div class="ico ${tone}">${tone === "yes" ? "✓" : "✕"}</div>${esc(r)}</div>`)
-      .join("");
-    return `<div class="card ${c.tone === "good" ? "win" : ""}"><h2>${esc(c.title ?? "")}</h2>${rows}</div>`;
-  })
-  .join('<div class="eq">→</div>');
-
-const pillsHtml = (spec.pills ?? [])
-  .map((p) => `<div class="pill"><div class="n">${esc(p.n)}</div><div class="l">${esc(p.l)}</div></div>`)
-  .join("");
-
 // A faint candlestick field in the dead corner. Deterministic from the date so a
 // re-render of the same episode is byte-stable; it's texture, not information.
 const sticks = candlesticks(spec.date ?? "2026-01-01");
@@ -128,19 +124,7 @@ const html = `<meta charset="utf-8">
   .brand{margin-top:auto;position:relative;z-index:2;font-size:15px;font-weight:800;
          letter-spacing:.20em;color:${T.faint};text-transform:uppercase}
   .right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px}
-  .cards{display:flex;align-items:stretch;gap:14px}
-  .card{flex:1;background:${T.cardBg};border:2px solid ${T.cardBorder};border-radius:18px;
-        padding:24px 22px;display:flex;flex-direction:column;box-shadow:0 18px 40px ${T.light ? "#0002" : "#0006"}}
-  .card.win{border-color:${T.goodEdge}}
-  .card h2{font-size:16px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:${T.muted};margin-bottom:20px}
-  .card.win h2{color:${T.goodInk}}
-  .row{display:flex;align-items:center;gap:12px;font-size:21px;color:${T.light ? T.ink : "#D7E2F5"};
-       margin-bottom:18px;line-height:1.2}
-  .row:last-child{margin-bottom:0}
-  .ico{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;
-       font-size:17px;font-weight:900;color:${T.light ? "#fff" : T.bg}}
-  .no{background:${T.bad}}.yes{background:${T.good}}
-  .eq{display:grid;place-items:center;font-size:44px;color:${T.accent};font-weight:900;padding:0 2px}
+  ${L.css(T)}
   .pills{display:flex;gap:12px}
   .pill{flex:1;background:${T.cardBg};border:2px solid ${T.cardBorder};border-radius:14px;padding:14px;text-align:center}
   .pill .n{font-family:'Sequel100Black-65',Impact,'Arial Black',sans-serif;font-size:31px;color:${T.accent};line-height:1}
@@ -159,8 +143,7 @@ ${sticks}
     <div class="brand">${esc(spec.brand ?? "Kambio for the People")}</div>
   </div>
   <div class="right">
-    ${cardsHtml ? `<div class="cards">${cardsHtml}</div>` : ""}
-    ${pillsHtml ? `<div class="pills">${pillsHtml}</div>` : ""}
+    ${L.html(spec, T, esc)}
   </div>
 </div>
 ${spec.tag === null ? "" : `<div class="tag">${esc(spec.tag ?? "Simulated paper account")}</div>`}
