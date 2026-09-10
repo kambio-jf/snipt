@@ -15,14 +15,17 @@
 //   node cli/thumb.mjs …/thumb.json --theme crimson     (override the rotation)
 //   node cli/thumb.mjs …/thumb.json --keep-html         (write the source next to the PNG)
 //   node cli/thumb.mjs …/thumb.json --frame stack        (text top, box bottom)
+//   node cli/thumb.mjs --pick 2026-09-11                (roll + log the day's look BEFORE writing its spec)
+//   node cli/thumb.mjs …/thumb.json --no-log            (preview: render without recording a use)
 //   node cli/thumb.mjs --list-themes
 import { readFileSync, writeFileSync, existsSync, statSync, unlinkSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, resolve, join } from "node:path";
 import { tmpdir } from "node:os";
-import { getTheme, themeForDate, themeNames } from "../lib/thumbthemes.mjs";
+import { getTheme, themeNames } from "../lib/thumbthemes.mjs";
 import { getLayout, layoutNames } from "../lib/thumblayouts.mjs";
 import { getFrame, frameNames } from "../lib/thumbframes.mjs";
+import { pickLook, readHistory, recordUse } from "../lib/thumbpick.mjs";
 
 const W = 1280, H = 720;
 const YT_MAX_BYTES = 2 * 1024 * 1024;   // YouTube rejects thumbnails over 2 MB
@@ -38,9 +41,29 @@ if (args.includes("--list-frames")) {
   process.exit(0);
 }
 
+// --pick [date] chooses the day's look BEFORE its spec is written. Layout and
+// frame decide what the spec has to contain (a contrast, a stat or a sequence;
+// a long or a short headline), so they must be settled first. Rolls all three,
+// checks them against the log, records the pick, prints it. A date that already
+// has a pick keeps it.
+if (args.includes("--pick")) {
+  const d = args[args.indexOf("--pick") + 1];
+  const date = d && !d.startsWith("--") ? d : isoToday();
+  const history = readHistory();
+  const had = history.find((h) => h.date === date);
+  const look = had ?? pickLook({ history, date });
+  if (!had) recordUse({ date, ...look });
+  console.log(`${date}: theme "${look.theme}" · layout "${look.layout}" · frame "${look.frame}"` +
+    (had ? "  (already picked)" : `  (rolled, ${look.tries} ${look.tries === 1 ? "try" : "tries"})`));
+  console.log(`   ${look.layout} needs: ${getLayout(look.layout).fields}` +
+    (look.frame === "stack" ? "  · stack: 2 long headline lines, no headlineSize" : ""));
+  process.exit(0);
+}
+
 const jsonPath = args.find((a) => !a.startsWith("--"));
 if (!jsonPath) {
-  console.error("usage: node cli/thumb.mjs <thumb.json> [--theme name] [--layout name] [--frame name] [--out file.png] [--keep-html]");
+  console.error("usage: node cli/thumb.mjs <thumb.json> [--theme name] [--layout name] [--frame name] [--out file.png] [--keep-html] [--no-log]");
+  console.error("       node cli/thumb.mjs --pick [YYYY-MM-DD]");
   console.error("       node cli/thumb.mjs --list-themes | --list-layouts | --list-frames");
   process.exit(1);
 }
@@ -50,23 +73,30 @@ const specPath = resolve(jsonPath);
 const spec = JSON.parse(readFileSync(specPath, "utf8"));
 const dir = dirname(specPath);
 
-// ---- theme selection ----
-// Explicit --theme beats the file, the file beats the date rotation. The
-// rotation is the normal path: it's what stops two episodes in a row from
-// looking like the same video in a subscriptions feed.
-const themeName = flag("--theme") ?? spec.theme ?? themeForDate(spec.date ?? isoToday());
+// ---- look selection ----
+// Per axis: explicit flag > the spec > the log's pick for this date > default.
+// The log is what keeps a re-render stable. Only the palette is ever rolled at
+// render time: layout and frame shape the spec's CONTENT, so a spec without
+// them was written for the originals (cards, split) and gets those.
+const date = spec.date ?? isoToday();
+const logged = readHistory().find((h) => h.date === date);
+const layoutName = flag("--layout") ?? spec.layout ?? logged?.layout ?? "cards";
+const frameName = flag("--frame") ?? spec.frame ?? logged?.frame ?? "split";
+let themeName = flag("--theme") ?? spec.theme ?? logged?.theme;
+const themeSource = flag("--theme") || spec.theme ? "" : logged?.theme ? " (from log)" : " (picked)";
+if (!themeName) themeName = pickLook({ history: readHistory(), date, fixed: { layout: layoutName, frame: frameName } }).theme;
 const T = getTheme(themeName);
 
 // Layout is the OTHER axis of variation. Sixteen palettes made episodes differ in
 // colour; a viewer scanning a feed reads SHAPE first, so three layouts multiply
 // the apparent variety far more than three more colours would.
-const L = getLayout(flag("--layout") ?? spec.layout ?? "cards");
+const L = getLayout(layoutName);
 
 // Frame is the THIRD axis: which block sits where. Theme changes the colour,
 // layout the shape of the content block, frame the skeleton both sit in — and
 // the skeleton is what a viewer reads first. Defaults to the original split, so
 // every thumb.json written before frames existed renders byte-for-byte the same.
-const F = getFrame(flag("--frame") ?? spec.frame ?? "split");
+const F = getFrame(frameName);
 
 // A full-width headline needs a smaller size than a 446px-column one, so the
 // frame carries a default. An explicit headlineSize in the spec still wins.
@@ -187,9 +217,13 @@ if (!existsSync(outPath)) {
   process.exit(1);
 }
 
+// Record the look that actually shipped, explicit flags and pins included —
+// they were used too. Previews pass --no-log so they never count as a use.
+if (!args.includes("--no-log")) recordUse({ date, theme: T.name, layout: L.name, frame: F.name });
+
 const bytes = statSync(outPath).size;
 console.log(`✅ ${outPath}`);
-console.log(`   ${W}x${H} · theme "${T.name}"${flag("--theme") || spec.theme ? "" : " (rotated from date)"} · layout "${L.name}" · frame "${F.name}" · ${(bytes / 1024).toFixed(0)} KB`);
+console.log(`   ${W}x${H} · theme "${T.name}"${themeSource} · layout "${L.name}" · frame "${F.name}" · ${(bytes / 1024).toFixed(0)} KB`);
 if (bytes > YT_MAX_BYTES) console.log(`   ⚠ over YouTube's 2 MB limit — trim the artwork or re-encode`);
 
 // ---- helpers ----
