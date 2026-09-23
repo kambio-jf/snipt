@@ -8,6 +8,8 @@
 //   node cli/clean.mjs "…mp4" --dry-run          (phase 2 preview: cut summary, no render)
 //   node cli/clean.mjs "…mp4" [--tighten 350] [--defiller]   (phase 2: render CLEAN master)
 //   node cli/clean.mjs "…mp4" --transcribe       (force re-transcribe)
+//   node cli/clean.mjs "…mp4" --seg-timeout 30   (flat per-segment encode limit, s;
+//                                                 default max(60, 10 x segment length))
 import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
 import { dirname, basename, resolve, join } from "node:path";
@@ -29,6 +31,7 @@ const wordsPath = join(dir, `${name}.words.json`);
 const dryRun = args.includes("--dry-run");
 const defiller = args.includes("--defiller");
 const tighten = args.includes("--tighten") ? +args[args.indexOf("--tighten") + 1] : 350;
+const segTimeoutFlat = args.includes("--seg-timeout") ? +args[args.indexOf("--seg-timeout") + 1] : null;
 for (let i = 0; i < args.length; i++) if (args[i] === "--cut") { const [a, b] = args[i + 1].split("-"); cuts.push([clk(a), clk(b)]); }
 
 // ---------- phase 1: transcribe ----------
@@ -66,19 +69,30 @@ writeFileSync(join(dir, `${name}.clean.json`), JSON.stringify({ source: video, t
 
 // transcript of the POSTED (clean) video: surviving words with remapped timestamps,
 // grouped into [M:SS] lines — no YouTube auto-caption wait needed.
-const r2f = raw2final(keep);
+//
+// Written twice on a real render. Before it, only the nominal span lengths exist,
+// so the stamps run a few seconds EARLY late in the video (see raw2final). After
+// the segments are extracted their real durations are known, and it is rewritten
+// on the timeline the posted file actually has. Chapters come from this file.
 const stamp = (sec) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, "0")}`;
-const lines = []; let cur = [], curStart = null;
-for (const w of keptWords) {
-  if (curStart == null) curStart = r2f(w.start);
-  cur.push(w.text);
-  const chars = cur.join(" ").length;
-  if ((/[.?!]$/.test(w.text) && cur.length >= 5) || chars >= 90) { lines.push(`${stamp(curStart)}  ${cur.join(" ")}`); cur = []; curStart = null; }
+function writeTranscript(r2f) {
+  const lines = []; let cur = [], curStart = null;
+  for (const w of keptWords) {
+    if (curStart == null) curStart = r2f(w.start);
+    cur.push(w.text);
+    const chars = cur.join(" ").length;
+    if ((/[.?!]$/.test(w.text) && cur.length >= 5) || chars >= 90) { lines.push(`${stamp(curStart)}  ${cur.join(" ")}`); cur = []; curStart = null; }
+  }
+  if (cur.length) lines.push(`${stamp(curStart)}  ${cur.join(" ")}`);
+  writeFileSync(join(dir, `${name}.transcript.txt`), lines.join("\n") + "\n");
 }
-if (cur.length) lines.push(`${stamp(curStart)}  ${cur.join(" ")}`);
-writeFileSync(join(dir, `${name}.transcript.txt`), lines.join("\n") + "\n");
+writeTranscript(raw2final(keep));
 console.log(`📄 ${name}.transcript.txt — clean-timeline transcript ready (no YT wait)`);
-if (dryRun) { console.log(`(dry run — no render. drop --dry-run to build ${name}-CLEAN.mp4)`); process.exit(0); }
+if (dryRun) {
+  console.log(`   (nominal timing: the render rewrites it from the measured segment lengths, which run a few seconds longer by the end)`);
+  console.log(`(dry run — no render. drop --dry-run to build ${name}-CLEAN.mp4)`);
+  process.exit(0);
+}
 
 // ---------- phase 2: render ----------
 // Hundreds of precise cuts don't fit one filtergraph (giant split = slow) or a
@@ -102,14 +116,49 @@ let done = 0;
 // against shipping a clipped master.
 const AUDIO_CEILING = "alimiter=limit=0.78:attack=5:release=50:level=disabled";
 
-const runJob = (j) => new Promise((res, rej) => {
+// A QSV encode can hang while finishing its file and never exit. On 2026-09-23
+// s0144 - a 2.55 s segment - wrote its frames in 6 s and then sat for 55 min,
+// and because the join waits on every segment the whole render stalled with
+// nothing on screen to say so. Segments normally take seconds, so allow generous
+// headroom scaled to length, kill an overrun, retry it once, and fail LOUDLY
+// (naming the segment and where it sits in the source) if the retry fails too.
+// --seg-timeout <s> replaces the scaled limit with a flat one.
+const segTimeoutS = (d) => segTimeoutFlat ?? Math.max(60, d * 10);
+const encodeOnce = (j) => new Promise((res, rej) => {
   const p = spawn("ffmpeg", ["-y", "-ss", String(j.s), "-i", video, "-t", String(j.dur),
     "-c:v", "h264_qsv", "-global_quality", "23", "-af", AUDIO_CEILING, "-c:a", "aac", "-b:a", "192k",
     "-avoid_negative_ts", "make_zero", j.out], { stdio: "ignore" });
-  p.on("exit", (c) => { if (c === 0) { if (++done % 50 === 0) console.log(`   ${done}/${jobs.length}`); res(); } else rej(new Error(`segment failed: ${j.out}`)); });
+  const limit = segTimeoutS(j.dur);
+  const timer = setTimeout(() => { p.kill("SIGKILL"); rej(new Error(`no exit after ${limit}s, killed`)); }, limit * 1000);
+  p.on("error", (e) => { clearTimeout(timer); rej(e); });
+  p.on("exit", (c) => { clearTimeout(timer); c === 0 ? res() : rej(new Error(`ffmpeg exited ${c}`)); });
 });
+const runJob = async (j) => {
+  for (let attempt = 1; ; attempt++) {
+    try { await encodeOnce(j); break; }
+    catch (e) {
+      const where = `${basename(j.out)} (source ${stamp(j.s)}, ${j.dur}s)`;
+      if (attempt >= 2) throw new Error(`segment ${where} failed twice: ${e.message}`);
+      console.log(`   ⚠ ${where}: ${e.message} - retrying`);
+    }
+  }
+  if (++done % 50 === 0) console.log(`   ${done}/${jobs.length}`);
+};
 const queue = [...jobs];
 await Promise.all(Array.from({ length: CONC }, async () => { while (queue.length) await runJob(queue.shift()); }));
+
+// Put the transcript on the timeline the posted file will actually have. The
+// concat below places each segment after the previous one's REAL length, and
+// every segment encodes a little long (~26 ms on 2026-09-23), so the nominal
+// stamps drift early - 8.1 s by the end of that day's 307 segments, which
+// moved late chapters onto the wrong sentence. segDurs goes into clean.json too:
+// anything mapping a transcript time back to the source through clean.json
+// (cutting Shorts from the original) must walk the same timeline.
+const segDurs = jobs.map((j) => +ffprobeDur(j.out).toFixed(3));
+const drift = segDurs.reduce((a, d) => a + d, 0) - kd;
+writeFileSync(join(dir, `${name}.clean.json`), JSON.stringify({ source: video, tighten, defiller, keep, segDurs }, null, 2));
+writeTranscript(raw2final(keep, segDurs));
+console.log(`📄 ${name}.transcript.txt rewritten on the rendered timeline (segments run ${drift.toFixed(1)}s long in total)`);
 
 const listFile = join(segDir, "list.txt");
 writeFileSync(listFile, jobs.map((j) => `file '${j.out.replace(/\\/g, "/")}'`).join("\n") + "\n");
