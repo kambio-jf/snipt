@@ -177,8 +177,12 @@ export interface SnapResult {
  */
 export function snapSpansToPauses(keep: Span[], pauses: Span[], opts?: SnapOptions): SnapResult;
 
-/** Build a mapper from a source-timeline time to its time on the cut timeline. */
-export function raw2final(keep: Span[]): (raw: number) => number;
+/**
+ * Build a mapper from a source-timeline time to its time on the cut timeline.
+ * `durs` are the measured durations of the rendered spans, when a render's
+ * spans come out longer than their nominal `e - s` (per-file encoder padding).
+ */
+export function raw2final(keep: Span[], durs?: number[]): (raw: number) => number;
 
 /** Word-level timeline from a (proofread) SRT, interpolated within each segment. */
 export function srtWordTimeline(srtPath: string): TimelineWord[];
