@@ -299,12 +299,16 @@ function renderShort(short) {
   console.log(`   pan keys: ${keys.map(k => `${k.t.toFixed(1)}s(${k.x},${k.y})${k.preset ? `[${k.preset}]` : ""}`).join(" -> ")}`);
 
   // ---------- pass 2: split layout + pan + burn ASS ----------
+  // layout "face": the source is a full-frame webcam shot (e.g. a retake recorded
+  // without the screen), so there is no PiP to cut out. Take a centred 9:16 slice
+  // of the frame instead; the captions and cues keep their usual positions.
   const outFile = `${name}-SHORT.mp4`;
-  const filter =
-    `[0:v]split=2[a][b];` +
-    `[a]crop=${PIP.w}:${PIP.h}:${PIP.x}:${PIP.y},scale=1080:${PIP_H}[pip];` +
-    `[b]crop=${WIN_W}:${WIN_H}:${pw("x")}:${pw("y")},scale=1080:${CONTENT_H}:force_original_aspect_ratio=increase,crop=1080:${CONTENT_H}[content];` +
-    `[pip][content]vstack=inputs=2,ass=${assFile}[v]`;
+  const filter = short.layout === "face"
+    ? `[0:v]crop=ih*9/16:ih:(iw-ih*9/16)/2:0,scale=1080:1920,ass=${assFile}[v]`
+    : `[0:v]split=2[a][b];` +
+      `[a]crop=${PIP.w}:${PIP.h}:${PIP.x}:${PIP.y},scale=1080:${PIP_H}[pip];` +
+      `[b]crop=${WIN_W}:${WIN_H}:${pw("x")}:${pw("y")},scale=1080:${CONTENT_H}:force_original_aspect_ratio=increase,crop=1080:${CONTENT_H}[content];` +
+      `[pip][content]vstack=inputs=2,ass=${assFile}[v]`;
   execFileSync("ffmpeg", ["-y", "-i", cutFile, "-filter_complex", filter,
     "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "medium", "-crf", "19",
     "-c:a", "aac", "-b:a", "192k", outFile], { stdio: "inherit", cwd: dir });
@@ -312,7 +316,7 @@ function renderShort(short) {
   console.log(`✅ ${resolve(dir, outFile)}`);
 }
 
-for (const short of cfg.shorts)for (const short of cfg.shorts) {
+for (const short of cfg.shorts) {
   if (only && short.name !== only) continue;
   renderShort(short);
 }
